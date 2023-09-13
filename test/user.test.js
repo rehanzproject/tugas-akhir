@@ -48,22 +48,24 @@ describe("Login Endpoint", () => {
 //#region Register Endpoint
 describe("Register Endpoint", () => {
   //#region New User
-    it("Should Make New User", (done) => {
-      chai
-        .request(app)
-        .post(`${url}/register`)
-        .send({
-          email: "mimin@1234",
-          name: "rehan koding",
-          password: "rehanm123",
-          confPassword: "rehanm123",
-        })
-        .end((err, res) => {
-          expect(res).to.have.status(201);
-          expect(res.body).to.be.have.property("message").equal("User Register Successfully"); // Check if the response body is an array
-          done();
-        });
-    });
+  it("Should Make New User", (done) => {
+    chai
+      .request(app)
+      .post(`${url}/register`)
+      .send({
+        email: "testing@1234",
+        name: "rehan koding",
+        password: "rehanm123",
+        confPassword: "rehanm123",
+      })
+      .end((err, res) => {
+        expect(res).to.have.status(201);
+        expect(res.body)
+          .to.be.have.property("message")
+          .equal("User Register Successfully"); // Check if the response body is an array
+        done();
+      });
+  });
   //#endregion
   it("Should Error While get new user", (done) => {
     chai
@@ -94,7 +96,8 @@ describe("Get Users Endpoint", () => {
       .get(`${url}/all`)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.have.property("status").equal("OK") // Check if the response body is an array
+        expect(res.body).to.have.property("data").that.is.an("array"); // Check if the property "data" is an array
+        expect(res.body).to.have.property("status").equal("OK"); // Check if the response body is an array
         done();
       });
   });
