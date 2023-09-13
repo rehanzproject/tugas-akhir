@@ -34,7 +34,7 @@ export const refreshToken = async (req, res) => {
           process.env.ACCESS_TOKEN_SECRET,
           {
             expiresIn: "1d",
-          }
+          },
         );
         res.status(200).json({
           code: 200,
@@ -43,16 +43,14 @@ export const refreshToken = async (req, res) => {
           success: true,
           data: { accessToken },
         });
-      }
+      },
     );
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        code: 500,
-        status: "Internal Server Error",
-        message: "Internal Server Error",
-        errors: { error },
-      });
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
   }
 };
