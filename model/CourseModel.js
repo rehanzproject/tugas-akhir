@@ -31,7 +31,7 @@ const Course = db.define(
       type: DataTypes.INTEGER,
     },
   },
-  { freezeTableName: true }
+  { freezeTableName: true },
 );
 
 Course.hasMany(Modules, {

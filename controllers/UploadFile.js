@@ -51,12 +51,10 @@ export const SavePicture = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        error: { msg: "Internal Server Error. Try Again" },
-        success: false,
-      });
+    res.status(500).json({
+      error: { msg: "Internal Server Error. Try Again" },
+      success: false,
+    });
   }
 };
 export const SaveDocument = async (req, res) => {
@@ -66,7 +64,7 @@ export const SaveDocument = async (req, res) => {
         console.log(err);
         return res.status(400).json({ message: "Error uploading document" });
       }
-      return res.json({ msg: "Success Upload Document" , success: true});
+      return res.json({ msg: "Success Upload Document", success: true });
     });
   } catch (error) {
     console.error(error);

@@ -123,15 +123,15 @@ export const Login = async (req, res) => {
       { admin, user_id, email },
       process.env.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "1d",
-      }
+        expiresIn: "1h",
+      },
     );
     const refreshToken = jwt.sign(
       { admin, user_id, email },
       process.env.REFRESH_TOKEN_SECRET,
       {
         expiresIn: "1d",
-      }
+      },
     );
     await user.update({ refreshToken: refreshToken });
     res.cookie("refreshToken", refreshToken, {

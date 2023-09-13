@@ -8,19 +8,17 @@ res.json({ code: 200 , status: "OK", message: "Success Get Data",success: true, 
 
 res.json({ code: 200 , status: "OK", message: "Success Get Data",success: true, data: users, page: { size: size , page: page, totalPages: getCourses.length } });
 
-
 ## 201
 
 res.status(201).json({ code : 201, status: "Created" , message: "User Register Successfully",success: true, data: users });
 
-## 204 
+## 204
 
 res.json({ code: 204 , status: "No Content", message: "No Content",success: true });
 
-
 ## 400
 
-res.status(400).json({ code:400, status: "Bad Request" ,message:"Wrong Password", success: false, errors:  });
+res.status(400).json({ code:400, status: "Bad Request" ,message:"Wrong Password", success: false, errors: });
 
 ## 401
 

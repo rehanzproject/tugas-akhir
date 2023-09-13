@@ -29,6 +29,6 @@ const CompletionCourse = db.define(
       type: DataTypes.INTEGER,
     },
   },
-  { freezeTableName: true }
+  { freezeTableName: true },
 );
 export default CompletionCourse;

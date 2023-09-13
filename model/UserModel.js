@@ -35,7 +35,7 @@ const Users = db.define(
       defaultValue: false,
     },
   },
-  { freezeTableName: true }
+  { freezeTableName: true },
 );
 // relation with Users and Course
 Users.hasMany(Course, {
