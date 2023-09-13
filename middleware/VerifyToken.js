@@ -7,16 +7,15 @@ export const verifyToken = (req, res, next) => {
   if (token === null) return response.sendStatus(401);
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err)
-      return res
-        .status(403)
-        .json({
-          code: 403,
-          status: "Forbidden",
-          message: "Forbidden",
-          success: false,
-        });
+      return res.status(401).json({
+        code: 401,
+        status: "Unauthorized",
+        message: "Session has Expired. Please Login Again",
+        success: false,
+      });
+
     req.email = decoded.email;
-    req.userId = decoded.user_id
+    req.userId = decoded.user_id;
     next();
   });
 };
