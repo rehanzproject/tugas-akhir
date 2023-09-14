@@ -1,12 +1,11 @@
-import chai from "chai";
+import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import app from "../index.js";
-const { expect } = chai;
 
 chai.use(chaiHttp);
 const url = "/api/v1/user";
-const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsInVzZXJfaWQiOiI4NDc5YjFjMC1kYWU0LTQ4ZTUtOTViMy04YzU1OTM2MzJmOTgiLCJlbWFpbCI6InRlc3RAMTIzNDUiLCJpYXQiOjE2OTQ2NjI0MTEsImV4cCI6MTY5NDY2NjAxMX0.ciMBZlecl1aREeiE_X4lhsfbc5njmIYyXavyAdBPPT0'
-
+const token =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsInVzZXJfaWQiOiI4NDc5YjFjMC1kYWU0LTQ4ZTUtOTViMy04YzU1OTM2MzJmOTgiLCJlbWFpbCI6InRlc3RAMTIzNDUiLCJpYXQiOjE2OTQ2ODU4NDEsImV4cCI6MTY5NDY4OTQ0MX0.LT3ECGYJPYVBZRbNy8PJxn5iNUkQmk42gW_KeQjYBLU";
 //#region login test
 describe("Login Endpoint", () => {
   it("should return a valid token when given correct credentials", (done) => {
@@ -96,6 +95,7 @@ describe("Get Users Endpoint", () => {
     chai
       .request(app)
       .get(`${url}/all`)
+      .set("Authorization", `Bearer ${token}`)
       .end((err, res) => {
         expect(res).to.have.status(200);
         expect(res.body).to.have.property("data").that.is.an("array"); // Check if the property "data" is an array
@@ -114,6 +114,22 @@ describe("Logout Endpoint", () => {
       .end((err, res) => {
         expect(res).to.have.status(200);
         // Add more assertions as needed for the response
+        done();
+      });
+  });
+});
+//#endregion
+
+//#region Log out test
+describe("Log out Endpoint", () => {
+  it("Should Log out user", (done) => {
+    chai
+      .request(app)
+      .delete(`${url}/logout`)
+      .set("Cookie", `refreshToken=${token}`) // Set the cookie here
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property("status").equal("OK");
         done();
       });
   });
@@ -140,14 +156,13 @@ describe("Get User By Email Endpoint", () => {
     chai
       .request(app)
       .get(`${url}/info`)
-      .set('Authorization', `Bearer ${token}`)
+      .set("Authorization", `Bearer ${token}`)
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.have.property('data').that.is.an('object')
-        expect(res.body).to.have.property("status").equal("OK"); 
+        expect(res.body).to.have.property("data").that.is.an("object");
+        expect(res.body).to.have.property("status").equal("OK");
         done();
       });
   });
 });
 //#endregion
-
