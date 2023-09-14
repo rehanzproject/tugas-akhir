@@ -82,27 +82,23 @@ export const getCheckoutVerify = async (req, res) => {
       },
     });
     if (!findUserAndCheckout)
-      return res
-        .status(404)
-        .json({
-          code: 404,
-          status: "Not Found",
-          message: "Checkout Not Found",
-          success: false,
-        });
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Checkout Not Found",
+        success: false,
+      });
     const addCheckoutVerify = await findUserAndCheckout.update({
       payment_method: req.body.payment_method,
       verify: true,
     });
-    res
-      .status(201)
-      .json({
-        code: 201,
-        status: "Created",
-        message: "User Checkout Course Successfully",
-        success: true,
-        data: addCheckoutVerify,
-      });
+    res.status(201).json({
+      code: 201,
+      status: "Created",
+      message: "User Checkout Course Successfully",
+      success: true,
+      data: addCheckoutVerify,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ msg: "Internal Server Error" });
