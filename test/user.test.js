@@ -5,6 +5,8 @@ const { expect } = chai;
 
 chai.use(chaiHttp);
 const url = "/api/v1/user";
+const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsInVzZXJfaWQiOiI4NDc5YjFjMC1kYWU0LTQ4ZTUtOTViMy04YzU1OTM2MzJmOTgiLCJlbWFpbCI6InRlc3RAMTIzNDUiLCJpYXQiOjE2OTQ2NjI0MTEsImV4cCI6MTY5NDY2NjAxMX0.ciMBZlecl1aREeiE_X4lhsfbc5njmIYyXavyAdBPPT0'
+
 //#region login test
 describe("Login Endpoint", () => {
   it("should return a valid token when given correct credentials", (done) => {
@@ -53,7 +55,7 @@ describe("Register Endpoint", () => {
       .request(app)
       .post(`${url}/register`)
       .send({
-        email: "testing@1234",
+        email: "hehehe@1234",
         name: "rehan koding",
         password: "rehanm123",
         confPassword: "rehanm123",
@@ -103,9 +105,6 @@ describe("Get Users Endpoint", () => {
   });
 });
 //#endregion
-//#region Authorization
-
-//#endregion
 //#region Logout test
 describe("Logout Endpoint", () => {
   it("Should Logout", (done) => {
@@ -120,3 +119,35 @@ describe("Logout Endpoint", () => {
   });
 });
 //#endregion
+
+//#region Ping test
+describe("Ping Endpoint", () => {
+  it("Should get Ping", (done) => {
+    chai
+      .request(app)
+      .get(`${url}/ping`)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        done();
+      });
+  });
+});
+//#endregion
+
+//#region Get User By Email test
+describe("Get User By Email Endpoint", () => {
+  it("Should get Info User by email", (done) => {
+    chai
+      .request(app)
+      .get(`${url}/info`)
+      .set('Authorization', `Bearer ${token}`)
+      .end((err, res) => {
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property('data').that.is.an('object')
+        expect(res.body).to.have.property("status").equal("OK"); 
+        done();
+      });
+  });
+});
+//#endregion
+
