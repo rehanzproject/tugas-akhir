@@ -79,7 +79,7 @@ export const Register = async (req, res) => {
       else {
         const salt = await bcrypt.genSalt();
         const hashPassword = await bcrypt.hash(password, salt);
-        const user = await Users.create({
+        await Users.create({
           name: name,
           email: email,
           password: hashPassword,
@@ -89,7 +89,7 @@ export const Register = async (req, res) => {
           status: "Created",
           message: "User Register Successfully",
           success: true,
-          data: user,
+          data: { name, email },
         });
       }
     });
@@ -123,7 +123,7 @@ export const Login = async (req, res) => {
       { admin, user_id, email },
       process.env.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: "1d",
       },
     );
     const refreshToken = jwt.sign(
