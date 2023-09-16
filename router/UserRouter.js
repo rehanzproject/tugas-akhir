@@ -17,8 +17,9 @@ import {
 } from "../controllers/Course.js";
 import { addModule, getModules } from "../controllers/Modules.js";
 import {
+  addCheckout,
   getAllCheckout,
-  getCheckout,
+  getCheckoutUser,
   getCheckoutVerify,
 } from "../controllers/Checkout.js";
 import {
@@ -46,7 +47,8 @@ UserRouter.post("/addmodule", verifyToken, addModule);
 UserRouter.get("/course", verifyToken, getCourse);
 // User Checkout
 UserRouter.get("/checkout/history", verifyToken, getAllCheckout);
-UserRouter.post("/checkout", verifyToken, getCheckout);
+UserRouter.get("/checkout", verifyToken, getCheckoutUser);
+UserRouter.post("/checkout", verifyToken, addCheckout);
 UserRouter.post("/checkout/verify", verifyToken, getCheckoutVerify);
 
 // Upload
