@@ -4,11 +4,22 @@ import Modules from "../model/ModulesModel.js";
 
 export const AddCourse = async (req, res) => {
   try {
-    const { name, desc, price, rating } = req.body;
+    const { name, desc, price } = req.body;
+    const findNameCourse = await Course.findAll({
+      where: {
+        name: name,
+      },
+    });
+    if (findNameCourse.length)
+      return res.status(400).json({
+        code: 400,
+        status: "Bad Request",
+        message: "Name already exist",
+        success: false,
+      });
     const newCourse = await Course.create({
       name,
       desc,
-      rating,
       price,
     });
     res.status(201).json({
@@ -33,6 +44,10 @@ export const getCourse = async (req, res) => {
     const getCourses = await Course.findAndCountAll({
       limit: parseInt(size),
       offset: (page - 1) * size,
+      include: {
+        model: Modules,
+        attributes: ["name"],
+      },
     });
 
     if (!getCourses.rows.length)
