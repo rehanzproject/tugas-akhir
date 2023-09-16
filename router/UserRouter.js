@@ -26,7 +26,11 @@ import {
   SavePicture,
   upload,
 } from "../controllers/UploadFile.js";
-import { AddComment, AddReplyComment, GetCommentByCourseID } from "../controllers/Comment.js";
+import {
+  AddComment,
+  AddReplyComment,
+  GetCommentByCourseID,
+} from "../controllers/Comment.js";
 
 const UserRouter = express.Router();
 // user
@@ -59,9 +63,9 @@ UserRouter.post(
 );
 UserRouter.post("/upload/document", verifyToken, SaveDocument);
 
-// comment 
-UserRouter.post('/course/comment',verifyToken , AddComment)
-UserRouter.post('/course/comment/reply',verifyToken , AddReplyComment)
-UserRouter.get('/course/comments',verifyToken , GetCommentByCourseID)
+// comment
+UserRouter.post("/course/comment", verifyToken, AddComment);
+UserRouter.post("/course/comment/reply", verifyToken, AddReplyComment);
+UserRouter.get("/course/comments", verifyToken, GetCommentByCourseID);
 
 export default UserRouter;

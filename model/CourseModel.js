@@ -38,7 +38,7 @@ const Course = db.define(
     },
     user_count: {
       type: DataTypes.INTEGER,
-    }
+    },
   },
   { freezeTableName: true },
 );

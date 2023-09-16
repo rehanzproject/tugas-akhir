@@ -26,7 +26,6 @@ const Assignment = db.define(
     document: {
       type: DataTypes.STRING,
     },
-   
   },
   { freezeTableName: true },
 );

@@ -26,7 +26,6 @@ const ReplyComment = db.define(
     text: {
       type: DataTypes.STRING,
     },
-   
   },
   { freezeTableName: true },
 );

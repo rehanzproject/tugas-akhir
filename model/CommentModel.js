@@ -26,16 +26,16 @@ const Comment = db.define(
     },
     text: {
       type: DataTypes.STRING,
-    }
+    },
   },
   { freezeTableName: true },
 );
 Comment.hasMany(ReplyComment, {
-    foreignKey: "comment_id",
-    sourceKey: "comment_id",
-  });
-  ReplyComment.belongsTo(Comment, {
-    foreignKey: "comment_id",
-    targetKey: "comment_id",
-  });
+  foreignKey: "comment_id",
+  sourceKey: "comment_id",
+});
+ReplyComment.belongsTo(Comment, {
+  foreignKey: "comment_id",
+  targetKey: "comment_id",
+});
 export default Comment;
