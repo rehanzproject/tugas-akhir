@@ -5,7 +5,6 @@ import {
   Logout,
   Register,
   getUserByEmail,
-  getUsers,
 } from "../controllers/Users.js";
 import { refreshToken } from "../controllers/RefreshToken.js";
 import { ForgotPassword } from "../controllers/ForgotPassword.js";
@@ -27,12 +26,12 @@ import {
   SavePicture,
   upload,
 } from "../controllers/UploadFile.js";
+import { AddComment, AddReplyComment, GetCommentByCourseID } from "../controllers/Comment.js";
 
 const UserRouter = express.Router();
 // user
 UserRouter.get("/info", verifyToken, getUserByEmail);
 UserRouter.get("/ping", (req, res) => res.status(200).json({ msg: "PING!!" }));
-UserRouter.get("/all", verifyToken, getUsers);
 UserRouter.post("/register", Register);
 UserRouter.post("/login", Login);
 UserRouter.get("/token", refreshToken);
@@ -58,6 +57,11 @@ UserRouter.post(
   upload.single("file"),
   SavePicture,
 );
-
 UserRouter.post("/upload/document", verifyToken, SaveDocument);
+
+// comment 
+UserRouter.post('/course/comment',verifyToken , AddComment)
+UserRouter.post('/course/comment/reply',verifyToken , AddReplyComment)
+UserRouter.get('/course/comments',verifyToken , GetCommentByCourseID)
+
 export default UserRouter;
