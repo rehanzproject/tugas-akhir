@@ -4,6 +4,8 @@ import Modules from "./ModulesModel.js";
 import Checkout from "./CheckoutModel.js";
 import CompletionCourse from "./CompletionCourseModel.js";
 import CompletionModule from "./CompletionModuleModel.js";
+import Assignment from "./AssignmentModel.js";
+import Comment from "./CommentModel.js";
 
 const Course = db.define(
   "course",
@@ -31,6 +33,12 @@ const Course = db.define(
     rating: {
       type: DataTypes.INTEGER,
     },
+    finished: {
+      type: DataTypes.INTEGER,
+    },
+    user_count: {
+      type: DataTypes.INTEGER,
+    }
   },
   { freezeTableName: true },
 );
@@ -64,6 +72,22 @@ Course.hasMany(CompletionModule, {
   sourceKey: "course_id",
 });
 CompletionModule.belongsTo(Course, {
+  foreignKey: "course_id",
+  targetKey: "course_id",
+});
+Course.hasMany(Assignment, {
+  foreignKey: "course_id",
+  sourceKey: "course_id",
+});
+Assignment.belongsTo(Course, {
+  foreignKey: "course_id",
+  targetKey: "course_id",
+});
+Course.hasMany(Comment, {
+  foreignKey: "course_id",
+  sourceKey: "course_id",
+});
+Comment.belongsTo(Course, {
   foreignKey: "course_id",
   targetKey: "course_id",
 });

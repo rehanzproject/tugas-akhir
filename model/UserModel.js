@@ -4,6 +4,9 @@ import Course from "./CourseModel.js";
 import Checkout from "./CheckoutModel.js";
 import CompletionCourse from "./CompletionCourseModel.js";
 import CompletionModule from "./CompletionModuleModel.js";
+import Assignment from "./AssignmentModel.js";
+import Comment from "./CommentModel.js";
+import ReplyComment from "./ReplyCommentModel.js";
 
 const Users = db.define(
   "users",
@@ -79,6 +82,34 @@ Users.hasMany(CompletionModule, {
   sourceKey: "user_id",
 });
 CompletionModule.belongsTo(Users, {
+  foreignKey: "user_id",
+  targetKey: "user_id",
+});
+
+// relation with Assignment and User
+Users.hasMany(Assignment, {
+  foreignKey: "user_id",
+  sourceKey: "user_id",
+});
+Assignment.belongsTo(Users, {
+  foreignKey: "user_id",
+  targetKey: "user_id",
+});
+
+// relation with Comment, ReplyComment and User
+Users.hasMany(Comment, {
+  foreignKey: "user_id",
+  sourceKey: "user_id",
+});
+Comment.belongsTo(Users, {
+  foreignKey: "user_id",
+  targetKey: "user_id",
+});
+Users.hasMany(ReplyComment, {
+  foreignKey: "user_id",
+  sourceKey: "user_id",
+});
+ReplyComment.belongsTo(Users, {
   foreignKey: "user_id",
   targetKey: "user_id",
 });
