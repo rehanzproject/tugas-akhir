@@ -2,34 +2,6 @@ import jwt from "jsonwebtoken";
 import Users from "../model/UserModel.js";
 import bcrypt from "bcrypt";
 
-export const getUsers = async (req, res) => {
-  try {
-    const users = await Users.findAll();
-    if (!users)
-      return res.status(404).json({
-        code: 404,
-        status: "Not Found",
-        message: "User Not Found",
-        success: false,
-      });
-
-    res.json({
-      code: 200,
-      status: "OK",
-      message: "Success Get Data",
-      success: true,
-      data: users,
-    });
-  } catch (error) {
-    res.status(500).json({
-      code: 500,
-      status: "Internal Server Error",
-      message: "Internal Server Error. Try Again",
-      errors: { error },
-    });
-  }
-};
-
 export const getUserByEmail = async (req, res) => {
   try {
     const user = await Users.findOne({
