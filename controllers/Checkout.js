@@ -1,4 +1,5 @@
 import Checkout from "../model/CheckoutModel.js";
+import Course from "../model/CourseModel.js";
 
 export const getAllCheckout = async (req, res) => {
   try {
@@ -29,14 +30,8 @@ export const getAllCheckout = async (req, res) => {
   }
 };
 
-export const getCheckout = async (req, res) => {
+export const addCheckout = async (req, res) => {
   try {
-    // const getCheckout = await Checkout.findAll({
-    //   where: {
-    //     course_id: req.query.id,
-    //   },
-    // });
-    //  if(getCheckout.length) return res.status(400).json({code:400 ,status: "Bad Request",message:"Checkout has created", success: false});
     const searchUser = await Checkout.findAll({
       where: {
         user_id: req.userId,
@@ -107,9 +102,14 @@ export const getCheckoutVerify = async (req, res) => {
 
 export const getCheckoutUser = async (req, res) => {
   try {
-    const getCheckout = await Checkout.findOne({
+    const getCheckout = await Checkout.findAll({
       where: {
         user_id: req.userId,
+        verify: true,
+      },
+      include: {
+        model: Course,
+        attributes: ["name", "price"],
       },
     });
     if (!getCheckout)
@@ -119,6 +119,13 @@ export const getCheckoutUser = async (req, res) => {
         message: "User Not Found",
         success: false,
       });
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Success Get Data",
+      success: true,
+      data: getCheckout,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
