@@ -3,6 +3,7 @@ import db from "../config/database.js";
 import Modules from "./ModulesModel.js";
 import Checkout from "./CheckoutModel.js";
 import CompletionCourse from "./CompletionCourseModel.js";
+import CompletionModule from "./CompletionModuleModel.js";
 
 const Course = db.define(
   "course",
@@ -55,6 +56,14 @@ Course.hasMany(CompletionCourse, {
   sourceKey: "course_id",
 });
 CompletionCourse.belongsTo(Course, {
+  foreignKey: "course_id",
+  targetKey: "course_id",
+});
+Course.hasMany(CompletionModule, {
+  foreignKey: "course_id",
+  sourceKey: "course_id",
+});
+CompletionModule.belongsTo(Course, {
   foreignKey: "course_id",
   targetKey: "course_id",
 });

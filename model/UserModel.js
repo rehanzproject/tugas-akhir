@@ -3,6 +3,7 @@ import db from "../config/database.js";
 import Course from "./CourseModel.js";
 import Checkout from "./CheckoutModel.js";
 import CompletionCourse from "./CompletionCourseModel.js";
+import CompletionModule from "./CompletionModuleModel.js";
 
 const Users = db.define(
   "users",
@@ -11,6 +12,12 @@ const Users = db.define(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
+    },
+    nim: {
+      type: DataTypes.INTEGER,
+    },
+    nip: {
+      type: DataTypes.INTEGER,
     },
     name: {
       type: DataTypes.STRING,
@@ -56,12 +63,22 @@ Checkout.belongsTo(Users, {
   targetKey: "user_id",
 });
 
-// relation with CompletionCourse and Course
+// relation with CompletionCourse and User
 Users.hasMany(CompletionCourse, {
   foreignKey: "user_id",
   sourceKey: "user_id",
 });
 CompletionCourse.belongsTo(Users, {
+  foreignKey: "user_id",
+  targetKey: "user_id",
+});
+
+// relation with CompletionModule and User
+Users.hasMany(CompletionModule, {
+  foreignKey: "user_id",
+  sourceKey: "user_id",
+});
+CompletionModule.belongsTo(Users, {
   foreignKey: "user_id",
   targetKey: "user_id",
 });

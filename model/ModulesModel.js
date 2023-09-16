@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import db from "../config/database.js";
+import CompletionModule from "./CompletionModuleModel.js";
 
 const Modules = db.define(
   "modules",
@@ -11,7 +12,7 @@ const Modules = db.define(
         key: "course_id",
       },
     },
-    id: {
+    module_id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
@@ -26,11 +27,15 @@ const Modules = db.define(
     rating: {
       type: DataTypes.INTEGER,
     },
-    document: {
-      type: DataTypes.JSON,
-    },
   },
   { freezeTableName: true },
 );
-
+Modules.hasMany(CompletionModule, {
+  foreignKey: "module_id",
+  sourceKey: "module_id",
+});
+CompletionModule.belongsTo(Modules, {
+  foreignKey: "module_id",
+  targetKey: "module_id",
+});
 export default Modules;
