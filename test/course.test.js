@@ -1,22 +1,22 @@
 import chai, { expect } from "chai";
 import app from "../index.js";
 import chaiHttp from "chai-http";
-
+import dotenv from "dotenv";
+dotenv.config();
 chai.use(chaiHttp);
 const url = "/api/v1/user";
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsInVzZXJfaWQiOiI4NDc5YjFjMC1kYWU0LTQ4ZTUtOTViMy04YzU1OTM2MzJmOTgiLCJlbWFpbCI6InRlc3RAMTIzNDUiLCJpYXQiOjE2OTQ2ODU4NDEsImV4cCI6MTY5NDY4OTQ0MX0.LT3ECGYJPYVBZRbNy8PJxn5iNUkQmk42gW_KeQjYBLU";
+const token = process.env.TOKEN;
 //#region Course test
 describe("Course Endpoint", () => {
   it("Should get Course", (done) => {
     chai
       .request(app)
       .get(`${url}/course`)
-      .set("Authorization", `Bearer ${token}`) // Set the bearer token here
-      .query({ size: 2, page: 1 }) // Add query parameters here
+      .set("Authorization", `Bearer ${token}`)
+      .query({ size: 2, page: 1 })
       .end((err, res) => {
         expect(res).to.have.status(200);
-        expect(res.body).to.have.property("data").that.is.an("array"); // Check if the property "data" is an array
+        expect(res.body).to.have.property("data").that.is.an("array");
         done();
       });
   });
@@ -31,7 +31,7 @@ describe("Add Course Endpoint", () => {
       .request(app)
       .post(`${url}/addcourse`)
       .set("Authorization", `Bearer ${token}`)
-      .send({ name: "Github Tutorial", desc: "Lorem", price: 10000, rating: 5 })
+      .send({ name: "Pengenalan masa orientasi", desc: "Lorem", price: 10000 })
       .end((err, res) => {
         expect(res).to.have.status(201);
         expect(res.body).to.have.property("status").equal("Created");
@@ -49,7 +49,7 @@ describe("Add Module Endpoint", () => {
       .post(`${url}/addmodule`)
       .set("Authorization", `Bearer ${token}`)
       .send({ name: "Github Tutorial", desc: "Lorem" })
-      .query({ id: "314e0852-1237-4787-96ea-740110bcf23a" })
+      .query({ id: "b67aa998-dc0b-4d51-b8e8-e37c5951315d" })
       .end((err, res) => {
         expect(res).to.have.status(201);
         expect(res.body).to.have.property("status").equal("Created");

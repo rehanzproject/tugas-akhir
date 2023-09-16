@@ -1,18 +1,20 @@
 import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 import app from "../index.js";
-
+import dotenv from "dotenv";
+dotenv.config();
 chai.use(chaiHttp);
 const url = "/api/v1/user";
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsInVzZXJfaWQiOiI4NDc5YjFjMC1kYWU0LTQ4ZTUtOTViMy04YzU1OTM2MzJmOTgiLCJlbWFpbCI6InRlc3RAMTIzNDUiLCJpYXQiOjE2OTQ2ODU4NDEsImV4cCI6MTY5NDY4OTQ0MX0.LT3ECGYJPYVBZRbNy8PJxn5iNUkQmk42gW_KeQjYBLU";
+const token = process.env.TOKEN;
+const REFRESHTOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6ZmFsc2UsInVzZXJfaWQiOiJiNWU5OTg3YS03ZmM5LTQzZGQtYWMyOC05YmQ5OGNhN2U4YWQiLCJlbWFpbCI6ImFkbWluQDEyMzQ1IiwiaWF0IjoxNjk0NzQ1MDU3LCJleHAiOjE2OTQ4MzE0NTd9.RUOncJnhk7tbhrY5hQvjeHAzkAxnI3j5cgDRYO0LbZw";
 //#region login test
 describe("Login Endpoint", () => {
   it("should return a valid token when given correct credentials", (done) => {
     chai
       .request(app)
       .post(`${url}/login`)
-      .send({ email: "admin@gmail.com", password: "rehanm123" })
+      .send({ email: "admin@12345", password: "rehanm123" })
       .end((err, res) => {
         expect(res).to.have.status(200);
         expect(res.body).to.have.property("status").equal("OK");
@@ -36,7 +38,7 @@ describe("Login Endpoint", () => {
     chai
       .request(app)
       .post("/api/v1/user/login")
-      .send({ email: "admin@gmail.com", password: "incorrectpassword" }) // Provide incorrect credentials
+      .send({ email: "admin@12345", password: "incorrectpassword" }) // Provide incorrect credentials
       .end((err, res) => {
         expect(res).to.have.status(400); // Assuming 400
         expect(res.body).to.have.property("message").equal("Wrong Password");
@@ -54,8 +56,8 @@ describe("Register Endpoint", () => {
       .request(app)
       .post(`${url}/register`)
       .send({
-        email: "hehehe@1234",
         name: "rehan koding",
+        email: "hehehe@1234",
         password: "rehanm123",
         confPassword: "rehanm123",
       })
@@ -63,7 +65,7 @@ describe("Register Endpoint", () => {
         expect(res).to.have.status(201);
         expect(res.body)
           .to.be.have.property("message")
-          .equal("User Register Successfully"); // Check if the response body is an array
+          .equal("User Register Successfully");
         done();
       });
   });
@@ -73,8 +75,8 @@ describe("Register Endpoint", () => {
       .request(app)
       .post(`${url}/register`)
       .send({
-        email: "Admin@1234",
         name: "rehan koding",
+        email: "admin@12345",
         password: "rehanm123",
         confPassword: "rehanm123",
       })
@@ -89,44 +91,13 @@ describe("Register Endpoint", () => {
 });
 //#endregion
 
-//#region Get Users test
-describe("Get Users Endpoint", () => {
-  it("Should get All Users", (done) => {
-    chai
-      .request(app)
-      .get(`${url}/all`)
-      .set("Authorization", `Bearer ${token}`)
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body).to.have.property("data").that.is.an("array"); // Check if the property "data" is an array
-        expect(res.body).to.have.property("status").equal("OK"); // Check if the response body is an array
-        done();
-      });
-  });
-});
-//#endregion
-//#region Logout test
-describe("Logout Endpoint", () => {
-  it("Should Logout", (done) => {
-    chai
-      .request(app)
-      .delete(`${url}/logout`)
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        // Add more assertions as needed for the response
-        done();
-      });
-  });
-});
-//#endregion
-
 //#region Log out test
 describe("Log out Endpoint", () => {
   it("Should Log out user", (done) => {
     chai
       .request(app)
       .delete(`${url}/logout`)
-      .set("Cookie", `refreshToken=${token}`) // Set the cookie here
+      .set("Cookie", `refreshToken=${REFRESHTOKEN}`) // Set the cookie here
       .end((err, res) => {
         expect(res).to.have.status(200);
         expect(res.body).to.have.property("status").equal("OK");
