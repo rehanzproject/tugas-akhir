@@ -9,6 +9,8 @@ import Modules from "./model/ModulesModel.js";
 import Checkout from "./model/CheckoutModel.js";
 import CompletionCourse from "./model/CompletionCourseModel.js";
 import CompletionModule from "./model/CompletionModuleModel.js";
+import Comment from "./model/CommentModel.js";
+import ReplyComment from "./model/ReplyCommentModel.js";
 dotenv.config();
 const app = express();
 
@@ -18,9 +20,11 @@ try {
   // await Users.sync()
   // await Course.sync()
   // await Modules.sync()
+  // await Comment.sync()
   // await Checkout.sync()
   // await CompletionCourse.sync()
   // await CompletionModule.sync()
+  // await ReplyComment.sync()
 } catch (error) {
   console.error(error);
 }
