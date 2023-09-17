@@ -39,8 +39,8 @@ UserRouter.get("/ping", (req, res) => res.status(200).json({ msg: "PING!!" }));
 UserRouter.post("/register", Register);
 UserRouter.post("/login", Login);
 UserRouter.get("/token", refreshToken);
-UserRouter.delete("/logout", Logout);
-UserRouter.post("/forgot-password", ForgotPassword);
+UserRouter.delete("/logout", verifyToken, Logout);
+UserRouter.post("/forgot-password", verifyToken, ForgotPassword);
 UserRouter.get("/getPDF", verifyToken, ShowPDF);
 // User course & modules
 UserRouter.get("/course/checkout", verifyToken, getCourseUserCheckout);
