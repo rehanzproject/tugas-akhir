@@ -14,7 +14,7 @@ export const getAllCheckout = async (req, res) => {
 
     res.status(200).json({
       code: 200,
-      status: "Created",
+      status: "OK",
       message: "Get All Checkout Successfully",
       success: true,
       data: getCheckout,
@@ -36,7 +36,6 @@ export const addCheckout = async (req, res) => {
       where: {
         user_id: req.userId,
         course_id: req.query.id,
-        verify: false,
       },
     });
     if (searchUser.length)
@@ -90,7 +89,7 @@ export const getCheckoutVerify = async (req, res) => {
     res.status(201).json({
       code: 201,
       status: "Created",
-      message: "User Checkout Course Successfully",
+      message: "Verify Checkout Course Successfully",
       success: true,
       data: addCheckoutVerify,
     });
@@ -112,11 +111,11 @@ export const getCheckoutUser = async (req, res) => {
         attributes: ["name", "price"],
       },
     });
-    if (!getCheckout)
+    if (!getCheckout.length)
       return res.status(404).json({
         code: 404,
         status: "Not Found",
-        message: "User Not Found",
+        message: "Checkout Not Found",
         success: false,
       });
     res.json({
