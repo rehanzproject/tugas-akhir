@@ -18,7 +18,7 @@ res.json({ code: 204 , status: "No Content", message: "No Content",success: true
 
 ## 400
 
-res.status(400).json({ code:400, status: "Bad Request" ,message:"Wrong Password", success: false, errors: });
+res.status(400).json({ code:400, status: "Bad Request" ,message:"Wrong Password", success: false});
 
 ## 401
 

@@ -13,7 +13,6 @@ export const verifyToken = (req, res, next) => {
         message: "Session has Expired. Please Login Again",
         success: false,
       });
-
     req.email = decoded.email;
     req.userId = decoded.user_id;
     next();

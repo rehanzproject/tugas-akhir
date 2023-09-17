@@ -8,7 +8,16 @@ export const getModules = async (req, res) => {
         course_id: req.query.id,
       },
     });
-    if (!getModule) return res.status(404).json({ msg: "Module Not Found!" });
+    if (!getModule.length)
+      return res
+        .status(404)
+        .json({
+          code: 404,
+          status: "Not Found",
+          message: "Module Not Found",
+          success: false,
+        });
+
     res.status(200).json({ msg: "Success Get Modules", data: getModule });
   } catch (error) {
     console.log(error);

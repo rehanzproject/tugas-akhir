@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, degrees, rgb } from "pdf-lib";
+import { PDFDocument, rgb } from "pdf-lib";
 import Users from "../model/UserModel.js";
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
@@ -11,7 +11,15 @@ export const ShowPDF = async (req, res) => {
         user_id: req.userId,
       },
     });
-    if (!getUser) return res.status(404).json({ msg: "User Not Found!" });
+    if (!getUser)
+      return res
+        .status(404)
+        .json({
+          code: 404,
+          status: "Not Found",
+          message: "User Not Found",
+          success: false,
+        });
     const existingPdfBytes = await fs.promises.readFile(
       "template/pdf/template.pdf",
     ); // Replace with your input PDF file path
@@ -50,7 +58,12 @@ export const ShowPDF = async (req, res) => {
       `template/output/${getUser.name}-${uuidv4()}.pdf`,
       modifiedPdfBytes,
     );
-    res.status(201).json({ msg: "PDF has been modified successfully" });
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Success Generate Certificate",
+      success: true,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send("Error generating PDF");

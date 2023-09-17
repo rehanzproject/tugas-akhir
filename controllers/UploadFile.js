@@ -1,6 +1,5 @@
 import multer from "multer";
 import path from "path";
-
 import Users from "../model/UserModel.js";
 import fs from "fs";
 const storagePicture = multer.diskStorage({
@@ -22,7 +21,9 @@ const storageDocument = multer.diskStorage({
   },
 });
 
-const uploadDocument = multer({ storage: storageDocument }).single("document");
+export const uploadDocument = multer({ storage: storageDocument }).single(
+  "document",
+);
 export const upload = multer({ storage: storagePicture });
 export const SavePicture = async (req, res) => {
   try {
