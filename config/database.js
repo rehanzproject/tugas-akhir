@@ -9,6 +9,7 @@ const db = new Sequelize(
   {
     host: process.env.DB_HOSTNAME,
     dialect: "mysql",
+    dialectModule: require('mysql2')
   },
 );
 
