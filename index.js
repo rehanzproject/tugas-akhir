@@ -33,6 +33,6 @@ app.use(express.json());
 app.use("/api/v1", router);
 app.use(express.static("public"));
 // app.use(express.static("template"));
-app.listen(5000, () => console.log(`server running at port 5000`));
+app.listen(process.env.PORT, () => console.log(`server running at port 5000`));
 
 export default app;
