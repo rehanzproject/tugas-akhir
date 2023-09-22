@@ -10,6 +10,8 @@ const db = new Sequelize(
   {
     host: process.env.DB_HOSTNAME,
     dialect: "mysql",
+    dialectModule: mysql2,
+    port: process.env.DB_PORT
   },
 );
 
