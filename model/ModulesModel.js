@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "../config/database.js";
 import CompletionModule from "./CompletionModuleModel.js";
+import Quizzes from "./QuizzesModel.js";
 
 const Modules = db.define(
   "modules",
@@ -35,6 +36,14 @@ Modules.hasMany(CompletionModule, {
   sourceKey: "module_id",
 });
 CompletionModule.belongsTo(Modules, {
+  foreignKey: "module_id",
+  targetKey: "module_id",
+});
+Modules.hasMany(Quizzes, {
+  foreignKey: "module_id",
+  sourceKey: "module_id",
+});
+Quizzes.belongsTo(Modules, {
   foreignKey: "module_id",
   targetKey: "module_id",
 });

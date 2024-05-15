@@ -6,6 +6,7 @@ import CompletionCourse from "./CompletionCourseModel.js";
 import CompletionModule from "./CompletionModuleModel.js";
 import Assignment from "./AssignmentModel.js";
 import Comment from "./CommentModel.js";
+import ReviewCourse from "./ReviewCourseModel.js";
 
 const Course = db.define(
   "course",
@@ -26,21 +27,39 @@ const Course = db.define(
       type: DataTypes.STRING,
     },
     thumbnail: { type: DataTypes.STRING },
-    desc: { type: DataTypes.STRING },
+    video: { type: DataTypes.STRING },
+    document: { type: DataTypes.STRING },
+    description: { type: DataTypes.STRING },
     price: {
       type: DataTypes.INTEGER,
     },
-    rating: {
+    rating1: {
       type: DataTypes.INTEGER,
     },
+    rating2: {
+      type: DataTypes.INTEGER,
+    },
+    rating3: {
+      type: DataTypes.INTEGER,
+    },
+    rating4: {
+      type: DataTypes.INTEGER,
+    },
+    rating5: {
+      type: DataTypes.INTEGER,
+    },
+
     finished: {
       type: DataTypes.INTEGER,
     },
     user_count: {
       type: DataTypes.INTEGER,
     },
+    member_count: {
+      type: DataTypes.INTEGER,
+    },
   },
-  { freezeTableName: true },
+  { freezeTableName: true }
 );
 
 Course.hasMany(Modules, {
@@ -88,6 +107,14 @@ Course.hasMany(Comment, {
   sourceKey: "course_id",
 });
 Comment.belongsTo(Course, {
+  foreignKey: "course_id",
+  targetKey: "course_id",
+});
+Course.hasMany(ReviewCourse, {
+  foreignKey: "course_id",
+  sourceKey: "course_id",
+});
+ReviewCourse.belongsTo(Course, {
   foreignKey: "course_id",
   targetKey: "course_id",
 });

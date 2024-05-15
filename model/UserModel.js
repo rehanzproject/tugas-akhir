@@ -7,6 +7,7 @@ import CompletionModule from "./CompletionModuleModel.js";
 import Assignment from "./AssignmentModel.js";
 import Comment from "./CommentModel.js";
 import ReplyComment from "./ReplyCommentModel.js";
+import ReviewCourse from "./ReviewCourseModel.js";
 
 const Users = db.define(
   "users",
@@ -26,6 +27,7 @@ const Users = db.define(
       type: DataTypes.STRING,
     },
     phone: { type: DataTypes.INTEGER },
+    code_otp: { type: DataTypes.INTEGER },
     dob: { type: DataTypes.DATE },
     email: {
       type: DataTypes.STRING,
@@ -39,6 +41,9 @@ const Users = db.define(
     },
     image: {
       type: DataTypes.STRING,
+    },
+    balance: {
+      type: DataTypes.INTEGER,
     },
     admin: {
       type: DataTypes.BOOLEAN,
@@ -110,6 +115,16 @@ Users.hasMany(ReplyComment, {
   sourceKey: "user_id",
 });
 ReplyComment.belongsTo(Users, {
+  foreignKey: "user_id",
+  targetKey: "user_id",
+});
+// relation with Review Course
+
+Users.hasMany(ReviewCourse, {
+  foreignKey: "user_id",
+  sourceKey: "user_id",
+});
+ReviewCourse.belongsTo(Users, {
   foreignKey: "user_id",
   targetKey: "user_id",
 });

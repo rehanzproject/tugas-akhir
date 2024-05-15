@@ -95,12 +95,10 @@ export const getCourseUserCheckout = async (req, res) => {
 
     const getUserCourse = await Checkout.findAll({
       where: {
-        verify: true,
         user_id: req.userId,
-        course_id: req.query.id,
+        verify: true,
       },
     });
-
     if (!getUserCourse || getUserCourse.length === 0) {
       // User hasn't checked out the course
       return res.status(400).json({
@@ -113,8 +111,8 @@ export const getCourseUserCheckout = async (req, res) => {
     }
 
     // User has checked out the course, include modules
-    const getModule = await Course.findOne({
-      where: { course_id: req.query.id },
+    const getModule = await Course.findAll({
+      where: { course_id: getUserCourse.course_id },
       include: { model: Modules },
     });
 

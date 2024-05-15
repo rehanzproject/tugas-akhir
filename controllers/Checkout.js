@@ -1,4 +1,5 @@
 import Checkout from "../model/CheckoutModel.js";
+import CompletionModule from "../model/CompletionModuleModel.js";
 import Course from "../model/CourseModel.js";
 
 export const getAllCheckout = async (req, res) => {
@@ -86,6 +87,10 @@ export const getCheckoutVerify = async (req, res) => {
       payment_method: req.body.payment_method,
       verify: true,
     });
+    await CompletionModule.create({
+      user_id: req.userId,
+      course_id: findUserAndCheckout.course_id,
+    })
     res.status(201).json({
       code: 201,
       status: "Created",
@@ -135,3 +140,41 @@ export const getCheckoutUser = async (req, res) => {
     });
   }
 };
+
+
+export const getCheckoutByUser = async (req, res) => {
+  try {
+    const getCheckout = await Checkout.findAll({
+      where: {
+        user_id: req.userId,
+      },
+      include: {
+        model: Course,
+        attributes: ["name", "price"],
+      },
+    });
+    if (!getCheckout.length)
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Checkout Not Found",
+        success: false,
+      });
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Success Get Data",
+      success: true,
+      data: getCheckout,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
+

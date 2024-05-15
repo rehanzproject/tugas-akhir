@@ -7,7 +7,7 @@ import {
   getUserByEmail,
 } from "../controllers/Users.js";
 import { refreshToken } from "../controllers/RefreshToken.js";
-import { ForgotPassword } from "../controllers/ForgotPassword.js";
+import { CheckOTP, ForgotPassword } from "../controllers/ForgotPassword.js";
 import { ShowPDF } from "../controllers/PDFMaker.js";
 import {
   AddCourse,
@@ -20,17 +20,21 @@ import {
   getAllCheckout,
   getCheckoutUser,
   getCheckoutVerify,
+  getCheckoutByUser
 } from "../controllers/Checkout.js";
 import {
   SaveDocument,
   SavePicture,
+  SaveThumbnail,
   upload,
+  uploadThumbnail,
 } from "../controllers/UploadFile.js";
 import {
   AddComment,
   AddReplyComment,
   GetCommentByCourseID,
 } from "../controllers/Comment.js";
+import { addQuizzes, getQuiz } from "../controllers/Quizzes.js";
 
 const UserRouter = express.Router();
 // user
@@ -40,7 +44,9 @@ UserRouter.post("/register", Register);
 UserRouter.post("/login", Login);
 UserRouter.get("/token", refreshToken);
 UserRouter.delete("/logout", verifyToken, Logout);
-UserRouter.post("/forgot-password", verifyToken, ForgotPassword);
+UserRouter.post("/forgot-password", ForgotPassword);
+UserRouter.post("/check-otp", CheckOTP);
+
 UserRouter.get("/getPDF", verifyToken, ShowPDF);
 // User course & modules
 UserRouter.get("/course/checkout", verifyToken, getCourseUserCheckout);
@@ -50,6 +56,7 @@ UserRouter.post("/addmodule", verifyToken, addModule);
 UserRouter.get("/course", verifyToken, getCourse);
 // User Checkout
 UserRouter.get("/checkout/history", verifyToken, getAllCheckout);
+UserRouter.get("/checkout/history/user", verifyToken, getCheckoutByUser);
 UserRouter.get("/checkout", verifyToken, getCheckoutUser);
 UserRouter.post("/checkout", verifyToken, addCheckout);
 UserRouter.post("/checkout/verify", verifyToken, getCheckoutVerify);
@@ -61,11 +68,22 @@ UserRouter.post(
   upload.single("file"),
   SavePicture,
 );
+UserRouter.post(
+  "/upload/thumbnail",
+  verifyToken,
+  uploadThumbnail.single("file"),
+  SaveThumbnail,
+);
 UserRouter.post("/upload/document", verifyToken, SaveDocument);
 
 // comment
 UserRouter.post("/course/comment", verifyToken, AddComment);
 UserRouter.post("/course/comment/reply", verifyToken, AddReplyComment);
 UserRouter.get("/course/comments", verifyToken, GetCommentByCourseID);
+
+// quiz
+UserRouter.post("/module/add-quiz", verifyToken, addQuizzes);
+UserRouter.get("/module/quiz", verifyToken, getQuiz);
+
 
 export default UserRouter;
