@@ -43,7 +43,7 @@ try {
   // await Course.drop()
   // await Users.drop()
 } catch (error) {
-  console.error(error);
+  console.error("error :", error);
 }
 app.use(cookieParser());
 app.use(bodyParser.json());
