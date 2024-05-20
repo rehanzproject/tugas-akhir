@@ -128,3 +128,37 @@ export const getCourseUserCheckout = async (req, res) => {
     });
   }
 };
+
+export const searchCourse = async (req, res) => {
+  try {
+    const { search } = req.query;
+    const getCourses = await Course.findAll({
+      where: {
+        name: search,
+      },
+    });
+
+    if (!getCourses.length)
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Course Not Found",
+        success: false,
+      });
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Success Get Data",
+      success: true,
+      data: getCourses,
+    });
+  } catch (error) {
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};

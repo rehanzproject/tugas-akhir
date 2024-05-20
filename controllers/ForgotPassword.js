@@ -30,8 +30,8 @@ export const ForgotPassword = async (req, res) => {
       message: "Email Not Found",
       success: false,
     });
-  
-    await getUser.update({
+
+  await getUser.update({
     code_otp: randomNumber,
   });
   transporter.sendMail(mailOptions, (error, info) => {
@@ -51,7 +51,7 @@ export const CheckOTP = async (req, res) => {
   try {
     const getUser = await Users.findOne({
       where: {
-        code_otp: req.body.otp
+        code_otp: req.body.otp,
       },
     });
     if (!getUser) {
@@ -76,6 +76,65 @@ export const CheckOTP = async (req, res) => {
       status: "OK",
       message: "OTP was Paired Successfully",
       success: true,
+      data: getUser.user_id,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+    });
+  }
+};
+export const changePassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const getUser = await Users.findOne({
+      where: {
+        user_id: req.query.id,
+      },
+    });
+    if (!getUser) {
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Unable to find user",
+        success: false,
+      });
+    }
+    const salt = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    const { admin, user_id, email } = getUser;
+    const accessToken = jwt.sign(
+      { admin, user_id, email },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+    const refreshToken = jwt.sign(
+      { admin, user_id, email },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+    await getUser.update({
+      refreshToken: refreshToken,
+      password: hashPassword,
+    });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Change Password Successfully",
+      success: true,
+      data: accessToken,
     });
   } catch (error) {
     console.error(error);

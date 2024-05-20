@@ -96,14 +96,14 @@ export const Login = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: "1d",
-      },
+      }
     );
     const refreshToken = jwt.sign(
       { admin, user_id, email },
       process.env.REFRESH_TOKEN_SECRET,
       {
         expiresIn: "1d",
-      },
+      }
     );
     await user.update({ refreshToken: refreshToken });
     res.cookie("refreshToken", refreshToken, {
@@ -164,5 +164,40 @@ export const Logout = async (req, res) => {
       message: "Internal Server Error",
       errors: { error },
     });
+  }
+};
+
+export const changeIdentity = async (req, res) => {
+  try {
+    const { email, name, phone } = req.body;
+    const findUser = await Users.findOne({
+      where: {
+        user_id: req.user_id,
+      },
+    });
+    if (!findUser) {
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "User not Found",
+        success: false,
+      });
+    }
+    await findUser.update({
+      email: email,
+      name: name,
+      phone: phone,
+    });
+
+    res.status(201).json({
+      code: 201,
+      status: "Created",
+      message: "Success Edit Information",
+      success: true,
+      data: findUser,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "Internal Server Error" });
   }
 };

@@ -4,7 +4,9 @@ import cookieParser from "cookie-parser";
 import db from "./config/database.js";
 import router from "./router/index.js";
 import bodyParser from "body-parser";
-import Users from "./model/UserModel.js";
+import options from "./option.json" assert { type: "json" };
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 import Course from "./model/CourseModel.js";
 import Modules from "./model/ModulesModel.js";
 import Checkout from "./model/CheckoutModel.js";
@@ -31,7 +33,7 @@ try {
   // await ReplyComment.sync()
   // await ReviewCourse.sync()
   // await Quizzes.sync()
-  // drop 
+  // drop
   // await Quizzes.drop()
   // await ReviewCourse.drop()
   // await ReplyComment.drop()
@@ -48,6 +50,12 @@ try {
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.json());
+const specs = swaggerJSDoc(options);
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs, { explorer: true })
+);
 app.use("/api/v1", router);
 app.use(express.static("public"));
 // app.use(express.static("template"));
