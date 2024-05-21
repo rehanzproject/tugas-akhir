@@ -16,6 +16,7 @@ import ReplyComment from "./model/ReplyCommentModel.js";
 import ReviewCourse from "./model/ReviewCourseModel.js";
 import Quizzes from "./model/QuizzesModel.js";
 import Users from "./model/UserModel.js";
+import helmet from "helmet";
 const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
 dotenv.config();
 const app = express();
@@ -42,7 +43,7 @@ const options = {
       },
     ],
   },
-  apis: ["./api-docs/*.js"],
+  apis: ["api-docs/*.js"],
 };
 
 
@@ -77,6 +78,7 @@ try {
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.json());
+app.use(helmet())
 const specs = swaggerJSDoc(options);
 app.use(
   "/api-docs",
