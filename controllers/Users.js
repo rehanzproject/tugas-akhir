@@ -118,6 +118,7 @@ export const Login = async (req, res) => {
       data: accessToken,
     });
   } catch (error) {
+    console.log(error);
     res.status(404).json({
       code: 404,
       status: "Not Found",
@@ -172,7 +173,7 @@ export const changeIdentity = async (req, res) => {
     const { email, name, phone } = req.body;
     const findUser = await Users.findOne({
       where: {
-        user_id: req.user_id,
+        email: req.email,
       },
     });
     if (!findUser) {
@@ -189,12 +190,11 @@ export const changeIdentity = async (req, res) => {
       phone: phone,
     });
 
-    res.status(201).json({
-      code: 201,
+    res.status(200).json({
+      code: 200,
       status: "Created",
       message: "Success Edit Information",
       success: true,
-      data: findUser,
     });
   } catch (error) {
     console.log(error);

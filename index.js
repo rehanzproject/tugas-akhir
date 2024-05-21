@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import db from "./config/database.js";
 import router from "./router/index.js";
 import bodyParser from "body-parser";
-import options from "./option.json" assert { type: "json" };
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import Course from "./model/CourseModel.js";
@@ -16,9 +15,37 @@ import Comment from "./model/CommentModel.js";
 import ReplyComment from "./model/ReplyCommentModel.js";
 import ReviewCourse from "./model/ReviewCourseModel.js";
 import Quizzes from "./model/QuizzesModel.js";
-
+import Users from "./model/UserModel.js";
+const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
 dotenv.config();
 const app = express();
+const options = {
+  definition: {
+    openapi: "3.1.0",
+    info: {
+      title: "Tugas Akhir Rehan Maulana Express API with Swagger",
+      version: "0.1.0",
+      description: "Ini adalah API Tugas Akhir dan terdokumentasikan dengan Swagger",
+      license: {
+        name: "MIT",
+        url: "https://spdx.org/licenses/MIT.html",
+      },
+      contact: {
+        name: "Rehan Maulana",
+        url: "https://portofolio-rehan.vercel.app/",
+        email: "rehanmaul111@gmail.com",
+      },
+    },
+    servers: [
+      {
+        url: "https://tugas-akhir-tawny.vercel.app/api/v1",
+      },
+    ],
+  },
+  apis: ["./api-docs/*.js"],
+};
+
+
 
 try {
   await db.authenticate();
@@ -54,7 +81,7 @@ const specs = swaggerJSDoc(options);
 app.use(
   "/api-docs",
   swaggerUi.serve,
-  swaggerUi.setup(specs, { explorer: true })
+  swaggerUi.setup(specs, { customCssUrl: CSS_URL, explorer: true })
 );
 app.use("/api/v1", router);
 app.use(express.static("public"));

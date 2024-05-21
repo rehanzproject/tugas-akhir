@@ -16,7 +16,7 @@ import {
   getCourseUserCheckout,
   searchCourse,
 } from "../controllers/Course.js";
-import { addModule, getModules } from "../controllers/Modules.js";
+import { addModule, getModule } from "../controllers/Modules.js";
 import {
   addCheckout,
   getAllCheckout,
@@ -38,6 +38,7 @@ import {
 } from "../controllers/Comment.js";
 import { addQuizzes, getQuiz } from "../controllers/Quizzes.js";
 import { getCompletion, ReviewCourses } from "../controllers/ReviewCourse.js";
+import { getModuleUserCheckout } from "../controllers/CompletionModules.js";
 
 const UserRouter = express.Router();
 // user
@@ -50,14 +51,15 @@ UserRouter.delete("/logout", verifyToken, Logout);
 UserRouter.post("/forgot-password", ForgotPassword);
 UserRouter.post("/check-otp", CheckOTP);
 UserRouter.post("/change-password", changePassword);
-UserRouter.post("/info/edit",verifyToken, changeIdentity);
+UserRouter.put("/info/edit",verifyToken, changeIdentity);
 
 UserRouter.get("/getPDF", verifyToken, ShowPDF);
 // User course & modules
 UserRouter.get("/course/checkout", verifyToken, getCourseUserCheckout);
-UserRouter.get("/modules", verifyToken, getModules);
 UserRouter.get("/course", verifyToken, getCourse);
 UserRouter.get("/search/course", verifyToken, searchCourse);
+UserRouter.get("/course/modules", verifyToken, getModule);
+UserRouter.get("/mycourse", verifyToken, getModuleUserCheckout);
 
 // User Checkout
 UserRouter.get("/checkout/history/user", verifyToken, getCheckoutByUser);

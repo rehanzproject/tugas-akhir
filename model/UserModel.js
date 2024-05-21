@@ -26,7 +26,7 @@ const Users = db.define(
     name: {
       type: DataTypes.STRING,
     },
-    phone: { type: DataTypes.INTEGER },
+    phone: { type: DataTypes.BIGINT },
     code_otp: { type: DataTypes.INTEGER },
     dob: { type: DataTypes.DATE },
     email: {
@@ -37,7 +37,7 @@ const Users = db.define(
       type: DataTypes.STRING,
     },
     refreshToken: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(1024),
     },
     image: {
       type: DataTypes.STRING,
@@ -50,7 +50,7 @@ const Users = db.define(
       defaultValue: false,
     },
   },
-  { freezeTableName: true },
+  { freezeTableName: true }
 );
 // relation with Users and Course
 Users.hasMany(Course, {

@@ -4,7 +4,7 @@ import Modules from "../model/ModulesModel.js";
 
 export const AddCourse = async (req, res) => {
   try {
-    const { name, desc, price } = req.body;
+    const { name, description, price } = req.body;
     const findNameCourse = await Course.findAll({
       where: {
         name: name,
@@ -19,7 +19,7 @@ export const AddCourse = async (req, res) => {
       });
     const newCourse = await Course.create({
       name,
-      desc,
+      description,
       price,
     });
     res.status(201).json({
@@ -134,7 +134,9 @@ export const searchCourse = async (req, res) => {
     const { search } = req.query;
     const getCourses = await Course.findAll({
       where: {
-        name: search,
+        name: {
+          [Op.like]: `%${search}%`,
+        },
       },
     });
 
@@ -162,3 +164,4 @@ export const searchCourse = async (req, res) => {
     });
   }
 };
+

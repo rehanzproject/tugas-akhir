@@ -1,27 +1,41 @@
 import Course from "../model/CourseModel.js";
 import Modules from "../model/ModulesModel.js";
-
-export const getModules = async (req, res) => {
+export const getModule = async (req, res) => {
   try {
-    const getModule = await Course.findAll({
+    const getCourses = await Course.findOne({
       where: {
         course_id: req.query.id,
       },
+      include: [
+        {
+          model: Modules,
+          attributes: ["module_id", "name"],
+        },
+      ],
     });
-    if (!getModule.length)
-      return res
-        .status(404)
-        .json({
-          code: 404,
-          status: "Not Found",
-          message: "Module Not Found",
-          success: false,
-        });
 
-    res.status(200).json({ msg: "Success Get Modules", data: getModule });
+    if (!getCourses)
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Course Not Found",
+        success: false,
+      });
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Success Get Data",
+      success: true,
+      data: getCourses,
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: "Internal Server Error!" });
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
   }
 };
 
