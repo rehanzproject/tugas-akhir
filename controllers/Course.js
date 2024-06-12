@@ -1,10 +1,13 @@
+import { Op, Sequelize } from "sequelize";
 import Checkout from "../model/CheckoutModel.js";
 import Course from "../model/CourseModel.js";
 import Modules from "../model/ModulesModel.js";
+import CompletionModule from "../model/CompletionModuleModel.js";
+import Users from "../model/UserModel.js";
 
 export const AddCourse = async (req, res) => {
   try {
-    const { name, description, price } = req.body;
+    const { name, description, price, coupon } = req.body;
     const findNameCourse = await Course.findAll({
       where: {
         name: name,
@@ -18,9 +21,11 @@ export const AddCourse = async (req, res) => {
         success: false,
       });
     const newCourse = await Course.create({
+      user_id: req.userId,
       name,
       description,
       price,
+      coupon,
     });
     res.status(201).json({
       code: 201,
@@ -38,6 +43,81 @@ export const AddCourse = async (req, res) => {
     });
   }
 };
+export const updateCourse = async (req, res) => {
+  try {
+    const { name, description, price, coupon } = req.body;
+    const findNameCourse = await Course.findOne({
+      where: {
+        course_id: req.query.id,
+      },
+    });
+    if (!findNameCourse)
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Course Not Found",
+        success: false,
+      });
+    const updatedCourse = await findNameCourse.update({
+      name,
+      description,
+      price,
+      coupon,
+    });
+    res.status(200).json({
+      code: 200,
+      status: "OK",
+      message: "Update Course Successfully",
+      success: true,
+      data: updatedCourse,
+    });
+  } catch (error) {
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
+
+export const deleteCourse = async (req, res) => {
+  try {
+    const deletedCourse = await Course.findOne({
+      where: {
+        course_id: req.query.id,
+      },
+    });
+    if (!deletedCourse)
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Course Not Found",
+        success: false,
+      });
+    const deleteData = await Course.destroy({
+      where: {
+        course_id: deletedCourse.course_id,
+      },
+    });
+    res.status(200).json({
+      code: 200,
+      status: "OK",
+      message: "Course Deleted Successfully",
+      success: true,
+      data: deleteData,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
+
 export const getCourse = async (req, res) => {
   try {
     const { size, page } = req.query;
@@ -80,7 +160,93 @@ export const getCourse = async (req, res) => {
     });
   }
 };
+export const getCourseDetail = async (req, res) => {
+  try {
+    const getCourses = await Course.findOne({
+      where: {
+        course_id: req.query.id,
+      },
+      include: [
+        {
+          model: Modules,
+        },
+        {
+          model: Users,
+          attributes: ["name"],
+        },
+      ],
+    });
 
+    if (!getCourses)
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Course Not Found",
+        success: false,
+      });
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Success Get Data",
+      success: true,
+      data: getCourses,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
+export const resumeCourse = async (req, res) => {
+  try {
+    const { id, name } = req.query;
+    // Find the CompletionModule for the user based on course ID
+    const getModules = await CompletionModule.findAll({
+      where: {
+        course_id: id,
+      },
+     
+    });
+
+    if (!getModules.length) {
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Modules Not Found",
+        success: false,
+      });
+    }
+
+    // // Prepare response data
+    // const responseData = getModules.map((module) => ({
+    //   moduleName: module.name, // Assuming there's a name field in CompletionModule
+    //   courseName: module.course.name, // Course name from the association
+    //   userName: module.user.name, // User name from the association
+    //   score: module.score, // Assuming there's a score field in CompletionModule
+    // }));
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Success Get Data",
+      success: true,
+      data: {  getModules },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
 export const getCourseUserCheckout = async (req, res) => {
   try {
     let responseWithoutModules = {
@@ -156,6 +322,7 @@ export const searchCourse = async (req, res) => {
       data: getCourses,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       code: 500,
       status: "Internal Server Error",
@@ -165,3 +332,40 @@ export const searchCourse = async (req, res) => {
   }
 };
 
+export const getSummaryUser = async (req, res) => {
+  try {
+    const { name, id } = req.query;
+
+    // Find user and calculate the average score
+    const user = await CompletionModule.findAll({
+      where: {
+        course_id: id,
+      },
+      include: [{
+        model: Users,
+        attributes: ['name', 'phone', 'image', 'nim'],
+        where: { name },
+      },{
+        model: Modules,
+        attributes: ['module_id', 'name']
+      }]
+     
+    });
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Successfully retrieved user summary",
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};

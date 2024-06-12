@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import Users from "../model/UserModel.js";
 import bcrypt from "bcrypt";
+import { Op } from "sequelize";
 
 export const getUserByEmail = async (req, res) => {
   try {
@@ -34,18 +35,21 @@ export const getUserByEmail = async (req, res) => {
 };
 
 export const Register = async (req, res) => {
-  const { name, email, password, confPassword } = req.body;
+  const { name, email, nim,  password, confPassword } = req.body;
   try {
     Users.findOne({
       where: {
-        email: email,
-      },
+        [Op.or]: [
+          { email: email },
+          { nim: nim },
+        ]
+      }
     }).then(async (existingUser) => {
       if (existingUser)
         return res.status(400).json({
           code: 400,
           status: "Bad Request",
-          message: "Email has already been registered",
+          message: "Email / NIM has already been registered",
           success: false,
         });
       else {
@@ -54,6 +58,7 @@ export const Register = async (req, res) => {
         await Users.create({
           name: name,
           email: email,
+          nim: nim,
           password: hashPassword,
         });
         res.status(201).json({
@@ -170,7 +175,7 @@ export const Logout = async (req, res) => {
 
 export const changeIdentity = async (req, res) => {
   try {
-    const { email, name, phone } = req.body;
+    const { email, name, phone,  } = req.body;
     const findUser = await Users.findOne({
       where: {
         email: req.email,

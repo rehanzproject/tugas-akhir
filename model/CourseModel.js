@@ -29,9 +29,13 @@ const Course = db.define(
     thumbnail: { type: DataTypes.STRING },
     video: { type: DataTypes.STRING },
     document: { type: DataTypes.STRING },
-    description: { type: DataTypes.STRING },
+    description: { type: DataTypes.TEXT },
     price: {
       type: DataTypes.INTEGER,
+    },
+    rating: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
     rating1: {
       type: DataTypes.INTEGER,
@@ -48,15 +52,18 @@ const Course = db.define(
     rating5: {
       type: DataTypes.INTEGER,
     },
-
+    coupon: { type: DataTypes.STRING },
     finished: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
     user_count: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
     member_count: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
   },
   { freezeTableName: true }

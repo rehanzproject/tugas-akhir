@@ -1,13 +1,14 @@
 import Checkout from "../model/CheckoutModel.js";
 import CompletionModule from "../model/CompletionModuleModel.js";
 import Course from "../model/CourseModel.js";
+import { Op } from "sequelize";
+import Modules from "../model/ModulesModel.js";
+import Users from "../model/UserModel.js";
+import CompletionCourse from "../model/CompletionCourseModel.js";
 
-// todo
-// buat query biar bisa nyari Checkout yang udah selesai
-// setelah itu
 export const getModuleUserCheckout = async (req, res) => {
   try {
-    // find checkout who verified
+    // Find verified checkouts for the user
     const findCheckouts = await Checkout.findAll({
       where: {
         user_id: req.userId,
@@ -15,7 +16,7 @@ export const getModuleUserCheckout = async (req, res) => {
       },
       include: {
         model: Course,
-        attributes: ["course_id", "name", "thumbnail"],
+        attributes: ["course_id", "name", "thumbnail", "price"],
       },
     });
 
@@ -28,31 +29,54 @@ export const getModuleUserCheckout = async (req, res) => {
       });
     }
 
-    // Retrieve all Completion Modules related to the user's checkouts
-    const checkoutCourseIds = findCheckouts.map(
-      (checkout) => checkout.course_id
-    );
+    // Retrieve course IDs from checkouts
+    const checkoutCourseIds = findCheckouts.map(checkout => checkout.course_id);
 
+    // Retrieve all completion modules for the user related to the checked-out courses
     const getModules = await CompletionModule.findAll({
       where: {
         user_id: req.userId,
-        course_id: checkoutCourseIds,
+        course_id: {
+          [Op.in]: checkoutCourseIds,
+        },
       },
     });
 
-    if (!getModules.length) {
-      return res.status(404).json({
-        code: 404,
-        status: "Not Found",
-        message: "Completion Modules Not Found",
-        success: false,
-      });
-    }
+    // Get the total number of modules for each course
+    const totalModulesByCourse = await Modules.findAll({
+      where: {
+        course_id: {
+          [Op.in]: checkoutCourseIds,
+        },
+      },
+    });
 
-    // Filter modules that do not have a score
-    const modulesWithoutScore = getModules.filter(
-      (module) => module.score === null
-    );
+    // Group totalModulesByCourse by course_id
+    const totalModulesCountByCourse = totalModulesByCourse.reduce((acc, module) => {
+      if (!acc[module.course_id]) {
+        acc[module.course_id] = 0;
+      }
+      acc[module.course_id]++;
+      return acc;
+    }, {});
+
+    // Group completed modules by course_id
+    const completedModulesCountByCourse = getModules.reduce((acc, module) => {
+      if (module.score !== null) {
+        if (!acc[module.course_id]) {
+          acc[module.course_id] = 0;
+        }
+        acc[module.course_id]++;
+      }
+      return acc;
+    }, {});
+
+    // Combine course details, totalComplete, and totalModules for each course
+    const courseCompletionData = findCheckouts.map(checkout => ({
+      course: checkout.course,
+      totalComplete: completedModulesCountByCourse[checkout.course_id] || 0,
+      totalModules: totalModulesCountByCourse[checkout.course_id] || 0,
+    }));
 
     res.json({
       code: 200,
@@ -60,13 +84,198 @@ export const getModuleUserCheckout = async (req, res) => {
       message: "Success Get Data",
       success: true,
       data: {
-        course: findCheckouts,
-        modules: getModules,
-        modulesWithoutScore: modulesWithoutScore,
+        courseCompletionData,
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
+export const checkWhoEnrolled = async (req, res) => {
+  const { name } = req.query;
+
+  if (!name) {
+    return res.status(400).json({
+      code: 400,
+      status: "Bad Request",
+      message: "Course name is required",
+      success: false,
+    });
+  }
+
+  try {
+    const enrolledUsers = await Checkout.findAll({
+      include: [
+        {
+          model: Users,
+          attributes: ["user_id", "name", "email", "nim"],
+        },
+        {
+          model: Course,  // Assuming you have a Courses model defined
+          attributes: ["course_id"],
+          where: { name:name },
+        },
+      ],
+    });
+
+    const filteredData = enrolledUsers.map((enrolled) => ({
+      course_id: enrolled.course.course_id,
+      user: enrolled.user,
+    }));
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Successfully retrieved enrolled users",
+      success: true,
+      data: filteredData,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
+
+export const checkMaterial = async (req, res) => {
+  try {
+    const courseId = req.query.id;
+
+    const findCourse = await Course.findOne({
+      where: { course_id: courseId },
+      include: {
+        model: Modules,
+        attributes: ["module_id", "name"],
+      },
+    });
+
+    if (!findCourse) {
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Course Not Found",
+        success: false,
+      });
+    }
+
+    const completionModules = await CompletionModule.findAll({
+      where: {
+        user_id: req.userId,
+        course_id: courseId,
+      },
+    });
+
+    const modulesWithCompletion = findCourse.modules.map((module) => {
+      const completion = completionModules.find(
+        (completionModule) => completionModule.module_id === module.module_id
+      );
+      return {
+        ...module.toJSON(),
+        is_completed: !!completion,
+        score: completion?.score,
+      };
+    });
+
+    const allCompleted = modulesWithCompletion.every(module => module.is_completed);
+    let averageScore = null;
+
+    if (allCompleted) {
+      const totalScore = modulesWithCompletion.reduce((acc, module) => acc + (module.score || 0), 0);
+      averageScore = totalScore / modulesWithCompletion.length;
+
+      // Check if the course is already marked as completed
+      const existingCompletion = await CompletionCourse.findOne({
+        where: {
+          user_id: req.userId,
+          course_id: courseId,
+        },
+      });
+
+      if (!existingCompletion) {
+        // Create a new CompletionCourse entry
+        await CompletionCourse.create({
+          user_id: req.userId,
+          course_id: courseId,
+          score: averageScore,
+        });
+      }
+    }
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Successfully retrieved completed courses",
+      success: true,
+      data: {
+        course: {
+          ...findCourse.toJSON(),
+          modules: modulesWithCompletion,
+          average_score: averageScore,
+          is_course_completed: allCompleted,
+        },
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
+
+
+
+export const addCompletionModule = async (req, res) => {
+  try {
+    // Find completion module for the user
+    const findCompletion = await CompletionModule.findOne({
+      where: {
+        user_id: req.userId,
+        module_id: req.query.id,
+        course_id: req.query.course_id,
+      },
+    });
+
+    // If a completion module exists and has a score, return 404
+    if (findCompletion && findCompletion.score !== null) {
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Completion module already exists with a score",
+        success: false,
+      });
+    }
+
+    // If no completion module is found or if it exists but has no score, create a new one
+    const addCompletion = await CompletionModule.create({
+      user_id: req.userId,
+      module_id: req.query.id,
+      course_id: req.query.course_id,
+      score: req.query.score,
+    });
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Completion module added successfully",
+      success: true,
+      data: addCompletion,
+    });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({
       code: 500,
       status: "Internal Server Error",

@@ -6,6 +6,7 @@ import router from "./router/index.js";
 import bodyParser from "body-parser";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import cors from "cors";
 import Course from "./model/CourseModel.js";
 import Modules from "./model/ModulesModel.js";
 import Checkout from "./model/CheckoutModel.js";
@@ -17,7 +18,8 @@ import ReviewCourse from "./model/ReviewCourseModel.js";
 import Quizzes from "./model/QuizzesModel.js";
 import Users from "./model/UserModel.js";
 import helmet from "helmet";
-const CSS_URL = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
+const CSS_URL =
+  "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
 dotenv.config();
 const app = express();
 const options = {
@@ -26,7 +28,8 @@ const options = {
     info: {
       title: "Tugas Akhir Rehan Maulana Express API with Swagger",
       version: "0.1.0",
-      description: "Ini adalah API Tugas Akhir dan terdokumentasikan dengan Swagger",
+      description:
+        "Ini adalah API Tugas Akhir dan terdokumentasikan dengan Swagger",
       license: {
         name: "MIT",
         url: "https://spdx.org/licenses/MIT.html",
@@ -45,8 +48,6 @@ const options = {
   },
   apis: ["api-docs/*.js"],
 };
-
-
 
 try {
   await db.authenticate();
@@ -75,10 +76,20 @@ try {
 } catch (error) {
   console.error("error :", error);
 }
+app.use(cors(corsOptionsDelegate));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.json());
-app.use(helmet())
+var allowlist = ["http://localhost:5173", "https://tugas-akhir-admin.vercel.app/"];
+var corsOptionsDelegate = function (req, callback) {
+  var corsOptions;
+  if (allowlist.indexOf(req.header("Origin")) !== -1) {
+    corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
+  } else {
+    corsOptions = { origin: false }; // disable CORS for this request
+  }
+  callback(null, corsOptions); // callback expects two parameters: error and options
+};
 const specs = swaggerJSDoc(options);
 app.use(
   "/api-docs",

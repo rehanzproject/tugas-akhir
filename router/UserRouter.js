@@ -13,10 +13,11 @@ import { ShowPDF } from "../controllers/PDFMaker.js";
 import {
   AddCourse,
   getCourse,
+  getCourseDetail,
   getCourseUserCheckout,
   searchCourse,
 } from "../controllers/Course.js";
-import { addModule, getModule } from "../controllers/Modules.js";
+import { addModule, detailModules, getModule } from "../controllers/Modules.js";
 import {
   addCheckout,
   getAllCheckout,
@@ -36,9 +37,10 @@ import {
   AddReplyComment,
   GetCommentByCourseID,
 } from "../controllers/Comment.js";
-import { addQuizzes, getQuiz } from "../controllers/Quizzes.js";
+import { addOrUpdateScoreQuiz, addQuizzes, getQuiz, } from "../controllers/Quizzes.js";
 import { getCompletion, ReviewCourses } from "../controllers/ReviewCourse.js";
-import { getModuleUserCheckout } from "../controllers/CompletionModules.js";
+import { addCompletionModule, checkMaterial, getModuleUserCheckout } from "../controllers/CompletionModules.js";
+import { getCompletionCourse } from "../controllers/CompleteCourse.js";
 
 const UserRouter = express.Router();
 // user
@@ -57,10 +59,14 @@ UserRouter.get("/getPDF", verifyToken, ShowPDF);
 // User course & modules
 UserRouter.get("/course/checkout", verifyToken, getCourseUserCheckout);
 UserRouter.get("/course", verifyToken, getCourse);
+UserRouter.get("/course/completed", verifyToken, getCompletionCourse);
+UserRouter.get("/course/detail", verifyToken, getCourseDetail);
 UserRouter.get("/search/course", verifyToken, searchCourse);
 UserRouter.get("/course/modules", verifyToken, getModule);
 UserRouter.get("/mycourse", verifyToken, getModuleUserCheckout);
-
+UserRouter.post("/module/complete", verifyToken, addCompletionModule);
+UserRouter.get("/course/enrolled", verifyToken, checkMaterial);
+UserRouter.get("/course/modules/detail", verifyToken, detailModules);
 // User Checkout
 UserRouter.get("/checkout/history/user", verifyToken, getCheckoutByUser);
 UserRouter.get("/checkout", verifyToken, getCheckoutUser);
@@ -93,5 +99,6 @@ UserRouter.get("/course/comments", verifyToken, GetCommentByCourseID);
 
 // quiz
 UserRouter.get("/module/quiz", verifyToken, getQuiz);
+UserRouter.post("/module/quiz/score", verifyToken, addOrUpdateScoreQuiz);
 
 export default UserRouter;

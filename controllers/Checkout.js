@@ -1,24 +1,40 @@
+import { Op, where } from "sequelize";
 import Checkout from "../model/CheckoutModel.js";
 import CompletionModule from "../model/CompletionModuleModel.js";
 import Course from "../model/CourseModel.js";
 
 export const getAllCheckout = async (req, res) => {
   try {
-    const getCheckout = await Checkout.findAll();
-    if (!getCheckout.length)
+    const { size, page } = req.query;
+    const getCheckoutAll = await Checkout.findAndCountAll({
+      limit: parseInt(size),
+      offset: (page - 1) * size,
+      include: {
+        model: Course,
+        attributes: ["name", "price"],
+      },
+    });
+
+    if (!getCheckoutAll.rows.length)
       return res.status(404).json({
         code: 404,
         status: "Not Found",
-        message: "Checkout Not Found",
+        message: "Course Not Found",
         success: false,
       });
 
-    res.status(200).json({
+    res.json({
       code: 200,
       status: "OK",
-      message: "Get All Checkout Successfully",
+      message: "Success Get Data",
       success: true,
-      data: getCheckout,
+      data: getCheckoutAll.rows,
+      page: {
+        size: parseInt(size),
+        total: getCheckoutAll.count,
+        page: parseInt(page),
+        totalPages: Math.ceil(getCheckoutAll.count / parseInt(size)),
+      },
     });
   } catch (error) {
     console.log(error);
@@ -30,26 +46,46 @@ export const getAllCheckout = async (req, res) => {
     });
   }
 };
-
 export const addCheckout = async (req, res) => {
   try {
-    const searchUser = await Checkout.findAll({
+    const searchUser = await Checkout.findOne({
       where: {
         user_id: req.userId,
         course_id: req.query.id,
+        [Op.or]: [{ verify: false }, { verify: null }],
       },
     });
-    if (searchUser.length)
+
+    if (searchUser) {
+      return res.status(200).json({
+        code: 200,
+        status: "OK",
+        message: "User Checkout Successfully",
+        success: true,
+        data: searchUser,
+      });
+    }
+    const searchCourseVerify = await Checkout.findOne({
+      where: {
+        user_id: req.userId,
+        course_id: req.query.id,
+        verify: true,
+      },
+    });
+    if (searchCourseVerify) {
       return res.status(400).json({
         code: 400,
         status: "Bad Request",
-        message: "User Already Checkout",
-        success: false,
+        message: "You've already Checkout",
+        success: true,
+        data: searchUser,
       });
+    }
     const createCheckout = await Checkout.create({
       course_id: req.query.id,
       user_id: req.userId,
     });
+
     res.status(201).json({
       code: 201,
       status: "Created",
@@ -58,7 +94,7 @@ export const addCheckout = async (req, res) => {
       data: createCheckout,
     });
   } catch (error) {
-    console.log(error);
+    console.log("Error:", error);
     res.status(500).json({
       code: 500,
       status: "Internal Server Error",
@@ -70,37 +106,63 @@ export const addCheckout = async (req, res) => {
 
 export const getCheckoutVerify = async (req, res) => {
   try {
+    const { payment_method } = req.query;
+    // Find the checkout record for the user
+    if (!payment_method) {
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Payment Method Not Found",
+        success: false,
+      });
+    }
     const findUserAndCheckout = await Checkout.findOne({
       where: {
         id: req.query.id,
         user_id: req.userId,
       },
     });
-    if (!findUserAndCheckout)
+
+    if (!findUserAndCheckout) {
       return res.status(404).json({
         code: 404,
         status: "Not Found",
         message: "Checkout Not Found",
         success: false,
       });
+    }
+
+    // Update the checkout record with the payment method and verify status
     const addCheckoutVerify = await findUserAndCheckout.update({
-      payment_method: req.body.payment_method,
+      payment_method,
       verify: true,
     });
-    await CompletionModule.create({
-      user_id: req.userId,
-      course_id: findUserAndCheckout.course_id,
-    })
+
+    // Increment the user count and member count for the course
+    await Course.increment(["user_count", "member_count"], {
+      by: 1,
+      where: {
+        course_id: findUserAndCheckout.course_id,
+      },
+    });
+
     res.status(201).json({
       code: 201,
       status: "Created",
       message: "Verify Checkout Course Successfully",
       success: true,
-      data: addCheckoutVerify,
+      data: {
+        addCheckoutVerify,
+      },
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ msg: "Internal Server Error" });
+    console.error(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
   }
 };
 
@@ -141,7 +203,6 @@ export const getCheckoutUser = async (req, res) => {
   }
 };
 
-
 export const getCheckoutByUser = async (req, res) => {
   try {
     const getCheckout = await Checkout.findAll({
@@ -177,4 +238,3 @@ export const getCheckoutByUser = async (req, res) => {
     });
   }
 };
-

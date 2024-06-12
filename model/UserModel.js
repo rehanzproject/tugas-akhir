@@ -19,6 +19,7 @@ const Users = db.define(
     },
     nim: {
       type: DataTypes.INTEGER,
+      primaryKey: true,
     },
     nip: {
       type: DataTypes.INTEGER,

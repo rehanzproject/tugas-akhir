@@ -21,15 +21,16 @@ const Modules = db.define(
     name: {
       type: DataTypes.STRING,
     },
-    desc: { type: DataTypes.STRING },
+    description: { type: DataTypes.TEXT },
     price: {
       type: DataTypes.INTEGER,
     },
     rating: {
       type: DataTypes.INTEGER,
     },
+    video: { type: DataTypes.STRING },
   },
-  { freezeTableName: true },
+  { freezeTableName: true }
 );
 Modules.hasMany(CompletionModule, {
   foreignKey: "module_id",
