@@ -80,7 +80,7 @@ app.use(cors(corsOptionsDelegate));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(express.json());
-var allowlist = ["http://localhost:5173", "https://tugas-akhir-admin.vercel.app/"];
+var allowlist = ["http://localhost:5173", "https://tugas-akhir-phi-beryl.vercel.app/"];
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   if (allowlist.indexOf(req.header("Origin")) !== -1) {
