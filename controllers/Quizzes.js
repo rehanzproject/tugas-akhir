@@ -16,7 +16,7 @@ export const getQuizzes = async (req, res) => {
         message: "Module Not Found",
         success: false,
       });
-   
+
     res.status(200).json({
       code: 200,
       status: "OK",
@@ -168,11 +168,10 @@ export const getQuiz = async (req, res) => {
       errors: { error },
     });
   }
-
 };
 export const addOrUpdateScoreQuiz = async (req, res) => {
   try {
-    const {course_id, id, score } = req.query;
+    const { course_id, id, score } = req.query;
 
     // Validate input parameters
     if (!id || !score) {
@@ -185,26 +184,30 @@ export const addOrUpdateScoreQuiz = async (req, res) => {
     }
 
     // Check if the module already exists
-    let addScoreQuiz = await CompletionModule.findOne({
+    const addScoreQuiz = await CompletionModule.findOne({
       where: {
         module_id: id,
+        user_id: req.userId,
       },
     });
-
+    console.log("test :", addScoreQuiz);
     if (addScoreQuiz) {
-      // Update the score if the module exists
-      addScoreQuiz.score = score;
-      await addScoreQuiz.save();
-    } else {
-      // Create a new entry if the module doesn't exist
-      addScoreQuiz = await CompletionModule.create({
-        user_id : req.userId,
-        module_id: id,
-        course_id: course_id,
-        score: score,
+      return res.status(404).json({
+        code: 404,
+        status: "Not found",
+        message: "Score has been exist",
+        success: false,
       });
     }
+    // Create a new entry if the module doesn't exist
+    const addScoreUserQuiz = await CompletionModule.create({
+      user_id: req.userId,
+      module_id: id,
+      course_id: course_id,
+      score: score,
+    });
 
+    console.log("resdjadjad ", addScoreQuiz);
     res.status(200).json({
       code: 200,
       status: "OK",

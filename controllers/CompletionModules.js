@@ -146,7 +146,6 @@ export const checkWhoEnrolled = async (req, res) => {
     });
   }
 };
-
 export const checkMaterial = async (req, res) => {
   try {
     const courseId = req.query.id;
@@ -155,8 +154,12 @@ export const checkMaterial = async (req, res) => {
       where: { course_id: courseId },
       include: {
         model: Modules,
-        attributes: ["module_id", "name"],
+        attributes: ["module_id", "name", "createdAt"], // Ensure createdAt is included
+        order: [['createdAt', 'ASC']] // This should be in the correct place
       },
+      order: [
+        [Modules, 'createdAt', 'ASC']
+      ],
     });
 
     if (!findCourse) {
@@ -167,7 +170,7 @@ export const checkMaterial = async (req, res) => {
         success: false,
       });
     }
-
+console.log(req.userId);
     const completionModules = await CompletionModule.findAll({
       where: {
         user_id: req.userId,
@@ -235,6 +238,7 @@ export const checkMaterial = async (req, res) => {
     });
   }
 };
+
 
 
 

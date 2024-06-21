@@ -10,7 +10,11 @@ export const getModule = async (req, res) => {
         {
           model: Modules,
           attributes: ["module_id", "name"],
+          order:[['createdAt' , 'ASC']]
         },
+      ],
+      order: [
+        [Modules, 'createdAt', 'ASC']
       ],
     });
 
@@ -77,7 +81,7 @@ export const updateModule = async (req, res) => {
     const { name, description , video } = req.body;
     const getModule = await Modules.findOne({
       where: {
-        course_id: req.query.id,
+        module_id: req.query.id,
       },
     });
     if (!getModule)

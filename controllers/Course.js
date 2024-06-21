@@ -169,6 +169,7 @@ export const getCourseDetail = async (req, res) => {
       include: [
         {
           model: Modules,
+          order: [['createdAt', 'ASC']],
         },
         {
           model: Users,
@@ -184,7 +185,9 @@ export const getCourseDetail = async (req, res) => {
         message: "Course Not Found",
         success: false,
       });
-
+      if (getCourses.modules) {
+        getCourses.modules.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      }
     res.json({
       code: 200,
       status: "OK",

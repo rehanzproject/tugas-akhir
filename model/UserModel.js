@@ -8,6 +8,7 @@ import Assignment from "./AssignmentModel.js";
 import Comment from "./CommentModel.js";
 import ReplyComment from "./ReplyCommentModel.js";
 import ReviewCourse from "./ReviewCourseModel.js";
+import RecentCourse from "./RecentCourseModel.js";
 
 const Users = db.define(
   "users",
@@ -19,10 +20,10 @@ const Users = db.define(
     },
     nim: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
     },
     nip: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
+      allowNull: true,
     },
     name: {
       type: DataTypes.STRING,
@@ -126,6 +127,15 @@ Users.hasMany(ReviewCourse, {
   sourceKey: "user_id",
 });
 ReviewCourse.belongsTo(Users, {
+  foreignKey: "user_id",
+  targetKey: "user_id",
+});
+
+Users.hasMany(RecentCourse, {
+  foreignKey: "user_id",
+  sourceKey: "user_id",
+});
+RecentCourse.belongsTo(Users, {
   foreignKey: "user_id",
   targetKey: "user_id",
 });

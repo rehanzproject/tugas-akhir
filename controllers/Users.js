@@ -7,7 +7,7 @@ export const getUserByEmail = async (req, res) => {
   try {
     const user = await Users.findOne({
       where: { email: req.email },
-      attributes: ["name", "email", "phone", "image"],
+      attributes: ["name", "email", "phone", "image", "nip", "nim"],
     });
     if (!user)
       return res.status(404).json({
@@ -35,41 +35,55 @@ export const getUserByEmail = async (req, res) => {
 };
 
 export const Register = async (req, res) => {
-  const { name, email, nim,  password, confPassword } = req.body;
+  const { name, email, nim, nip, password, confPassword, admin } = req.body;
+
   try {
-    Users.findOne({
+    // Build the where clause dynamically
+    const whereClause = {
+      email: email,
+    };
+    if (nim) {
+      whereClause.nim = nim;
+    }
+
+    // Check for existing user
+    const existingUser = await Users.findOne({
       where: {
         [Op.or]: [
           { email: email },
-          { nim: nim },
-        ]
-      }
-    }).then(async (existingUser) => {
-      if (existingUser)
-        return res.status(400).json({
-          code: 400,
-          status: "Bad Request",
-          message: "Email / NIM has already been registered",
-          success: false,
-        });
-      else {
-        const salt = await bcrypt.genSalt();
-        const hashPassword = await bcrypt.hash(password, salt);
-        await Users.create({
-          name: name,
-          email: email,
-          nim: nim,
-          password: hashPassword,
-        });
-        res.status(201).json({
-          code: 201,
-          status: "Created",
-          message: "User Register Successfully",
-          success: true,
-          data: { name, email },
-        });
-      }
+          ...(nim ? [{ nim: nim }] : []),
+        ],
+      },
     });
+
+    if (existingUser) {
+      return res.status(400).json({
+        code: 400,
+        status: "Bad Request",
+        message: "Email / NIM has already been registered",
+        success: false,
+      });
+    } else {
+      // Create new user
+      const salt = await bcrypt.genSalt();
+      const hashPassword = await bcrypt.hash(password, salt);
+      await Users.create({
+        name: name,
+        email: email,
+        nim: nim,
+        nip: nip,
+        admin: admin,
+        password: hashPassword,
+      });
+
+      res.status(201).json({
+        code: 201,
+        status: "Created",
+        message: "User Register Successfully",
+        success: true,
+        data: { name, email },
+      });
+    }
   } catch (error) {
     res.status(500).json({
       code: 500,
@@ -79,6 +93,7 @@ export const Register = async (req, res) => {
     });
   }
 };
+
 
 export const Login = async (req, res) => {
   try {
@@ -175,7 +190,7 @@ export const Logout = async (req, res) => {
 
 export const changeIdentity = async (req, res) => {
   try {
-    const { email, name, phone,  } = req.body;
+    const { nim, name, phone,  } = req.body;
     const findUser = await Users.findOne({
       where: {
         email: req.email,

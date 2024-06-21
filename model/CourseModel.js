@@ -7,6 +7,7 @@ import CompletionModule from "./CompletionModuleModel.js";
 import Assignment from "./AssignmentModel.js";
 import Comment from "./CommentModel.js";
 import ReviewCourse from "./ReviewCourseModel.js";
+import RecentCourse from "./RecentCourseModel.js";
 
 const Course = db.define(
   "course",
@@ -122,6 +123,14 @@ Course.hasMany(ReviewCourse, {
   sourceKey: "course_id",
 });
 ReviewCourse.belongsTo(Course, {
+  foreignKey: "course_id",
+  targetKey: "course_id",
+});
+Course.hasMany(RecentCourse, {
+  foreignKey: "course_id",
+  sourceKey: "course_id",
+});
+RecentCourse.belongsTo(Course, {
   foreignKey: "course_id",
   targetKey: "course_id",
 });

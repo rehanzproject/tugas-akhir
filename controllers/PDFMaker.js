@@ -2,12 +2,9 @@ import { PDFDocument, rgb } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import Users from "../model/UserModel.js";
 import fs from "fs";
-import { v4 as uuidv4 } from "uuid";
 import CompletionCourse from "../model/CompletionCourseModel.js";
 import Course from "../model/CourseModel.js";
 import path from "path";
-import dotenv from "dotenv";
-import cloudinary from "../utils/cloudinary.js";
 import { fileURLToPath } from "url";
 
 export const ShowPDF = async (req, res) => {
@@ -63,12 +60,13 @@ export const ShowPDF = async (req, res) => {
         success: false,
       });
     }
-
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
     // Load the PDF template
     const existingPdfBytes = await fs.promises.readFile(
-      "template/pdf/template.pdf"
-    );
-
+      path.join(__dirname, "../template/pdf/template.pdf")
+      );
+      
     // Load the PDF using pdf-lib
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
 
@@ -76,7 +74,8 @@ export const ShowPDF = async (req, res) => {
     pdfDoc.registerFontkit(fontkit);
 
     // Embed the custom font
-    const fontBytes = await fs.promises.readFile("Avenir.ttf"); // Replace with the path to your Avenir font file
+   
+    const fontBytes = await fs.promises.readFile(path.join(__dirname, "../Avenir.ttf")); // Replace with the path to your Avenir font file
     const customFont = await pdfDoc.embedFont(fontBytes);
 
     // Access the first page
@@ -128,33 +127,31 @@ export const ShowPDF = async (req, res) => {
     const modifiedPdfBytes = await pdfDoc.save();
 
     // Define the file path
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
+    const outputDir = path.join(__dirname, "../public/certificate");
     const outputFilePath = path.join(
-      __dirname,
-      `../template/output/${getUser.user.name}-${getUser.course.name}.pdf`
+      outputDir,
+      `${getUser.user.name}-${getUser.course.name}.pdf`
     );
+
+    // Ensure the directory exists
+    await fs.promises.mkdir(outputDir, { recursive: true });
 
     // Write the modified PDF to a new file
     await fs.promises.writeFile(outputFilePath, modifiedPdfBytes);
 
-    // Upload the file to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(outputFilePath, {
-      resource_type: "raw",
-      public_id: `certificates/${getUser.user.name}-${getUser.course.name}`,
-      format: "pdf",
-    });
+    // Construct the URL to the saved file
+    const fileUrl = `https://secondly-suited-fawn.ngrok-free.app/certificate/${encodeURIComponent(getUser.user.name)}-${encodeURIComponent(getUser.course.name)}.pdf`;
 
-    // Delete the local file after uploading
-    await fs.promises.unlink(outputFilePath);
-
-    // Send the Cloudinary URL to the user
+    // Send the local file path to the user
     res.json({
       code: 200,
       status: "OK",
       message: "Success Generate Certificate",
       success: true,
-      url: uploadResult.secure_url, // Send the Cloudinary URL
+      data: {
+        courseName,
+        url: fileUrl, // Send the constructed URL
+      }
     });
   } catch (error) {
     console.log(error);

@@ -9,41 +9,42 @@ import { checkWhoEnrolled } from "../controllers/CompletionModules.js";
 import { SaveThumbnail, uploadThumbnail } from "../controllers/UploadFile.js";
 import { getInfo, getStats } from "../controllers/Stats.js";
 import { getAllReviews } from "../controllers/ReviewCourse.js";
+import { verifyTokenAdmin } from "../middleware/VerifyAdmin.js";
 
 const AdminRouter = express.Router();
 
 AdminRouter.post("/login", Login);
 AdminRouter.delete("/logout", Logout);
 //course
-AdminRouter.get("/course", verifyToken, getCourse);
-AdminRouter.post("/course", verifyToken, AddCourse);
-AdminRouter.put("/course", verifyToken, updateCourse);
-AdminRouter.delete("/course", verifyToken, deleteCourse);
-AdminRouter.get("/course/detail", verifyToken, getCourseDetail);
+AdminRouter.get("/course", verifyTokenAdmin, getCourse);
+AdminRouter.post("/course", verifyTokenAdmin, AddCourse);
+AdminRouter.put("/course", verifyTokenAdmin, updateCourse);
+AdminRouter.delete("/course", verifyTokenAdmin, deleteCourse);
+AdminRouter.get("/course/detail", verifyTokenAdmin, getCourseDetail);
 
-AdminRouter.post("/module", verifyToken, addModule);
-AdminRouter.get("/course/resumes", verifyToken, resumeCourse);
+AdminRouter.post("/module", verifyTokenAdmin, addModule);
+AdminRouter.get("/course/resumes", verifyTokenAdmin, resumeCourse);
 
-AdminRouter.put("/module/update", verifyToken, updateModule);
-AdminRouter.delete("/module", verifyToken, deleteModule);
+AdminRouter.put("/module/update", verifyTokenAdmin, updateModule);
+AdminRouter.delete("/module", verifyTokenAdmin, deleteModule);
 
-AdminRouter.get("/who/enrolled/course", verifyToken, checkWhoEnrolled);
-AdminRouter.get("/course/resume", verifyToken, getSummaryUser);
-AdminRouter.get("/course/reviews", verifyToken, getAllReviews);
+AdminRouter.get("/who/enrolled/course", verifyTokenAdmin, checkWhoEnrolled);
+AdminRouter.get("/course/resume", verifyTokenAdmin, getSummaryUser);
+AdminRouter.get("/course/reviews", verifyTokenAdmin, getAllReviews);
 
-AdminRouter.get("/checkout/history/all", verifyToken, getAllCheckout);
+AdminRouter.get("/checkout/history/all", verifyTokenAdmin, getAllCheckout);
 
-AdminRouter.get("/module/quiz", verifyToken, getQuizzes);
-AdminRouter.post("/module/quiz", verifyToken, addQuizzes);
-AdminRouter.put("/module/quiz", verifyToken, updateQuizzes);
-AdminRouter.delete("/module/quiz", verifyToken, deleteQuizzes);
+AdminRouter.get("/module/quiz", verifyTokenAdmin, getQuizzes);
+AdminRouter.post("/module/quiz", verifyTokenAdmin, addQuizzes);
+AdminRouter.put("/module/quiz", verifyTokenAdmin, updateQuizzes);
+AdminRouter.delete("/module/quiz", verifyTokenAdmin, deleteQuizzes);
 
-AdminRouter.get("/stats", verifyToken, getStats);
-AdminRouter.get("/info", verifyToken, getInfo);
+AdminRouter.get("/stats", verifyTokenAdmin, getStats);
+AdminRouter.get("/info", verifyTokenAdmin, getInfo);
 
 AdminRouter.post(
     "/upload/thumbnail",
-    verifyToken,
+    verifyTokenAdmin,
     uploadThumbnail.single("file"),
     SaveThumbnail,
   );

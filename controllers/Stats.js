@@ -1,12 +1,13 @@
 import { Op } from "sequelize";
 import Checkout from "../model/CheckoutModel.js";
 import Course from "../model/CourseModel.js";
+import CompletionCourse from "../model/CompletionCourseModel.js";
 
 export const getStats = async (req, res) => {
   try {
     const course = await Course.count();
     const student = await Course.sum("member_count");
-    const graduate = await Course.count({ where: { finished: true } });
+    const graduate = await CompletionCourse.findAll()
 
     if (!course) {
       return res.status(404).json({
@@ -20,7 +21,7 @@ export const getStats = async (req, res) => {
     const data = {
       course,
       student,
-      graduate,
+      graduate : graduate.length,
     };
 
     res.status(200).json({
@@ -46,8 +47,7 @@ export const getInfo = async (req, res) => {
     const student = await Course.sum("member_count");
 
     // Retrieve the total number of finished courses
-    const graduate = await Course.sum("finished");
-
+    const graduate = await CompletionCourse.findAll()
     // Retrieve the total number of verified checkouts
     const verifiedCheckouts = await Checkout.count({ where: { verify: true } });
     const check = await Checkout.findAll({
@@ -58,10 +58,9 @@ export const getInfo = async (req, res) => {
       (sum, val) => sum + (val.course.price || 0),
       0
     );
-
     const data = {
       student,
-      graduate,
+     graduate: graduate.length,
       verifiedCheckouts,
       income: totalPrice,
     };

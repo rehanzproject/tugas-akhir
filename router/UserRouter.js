@@ -20,7 +20,6 @@ import {
 import { addModule, detailModules, getModule } from "../controllers/Modules.js";
 import {
   addCheckout,
-  getAllCheckout,
   getCheckoutUser,
   getCheckoutVerify,
   getCheckoutByUser
@@ -41,6 +40,7 @@ import { addOrUpdateScoreQuiz, addQuizzes, getQuiz, } from "../controllers/Quizz
 import { getCompletion, ReviewCourses } from "../controllers/ReviewCourse.js";
 import { addCompletionModule, checkMaterial, getModuleUserCheckout } from "../controllers/CompletionModules.js";
 import { getCompletionCourse } from "../controllers/CompleteCourse.js";
+import { AddRecentCourse, getRecentCourse, getRecentNameCourse } from "../controllers/RecentCourse.js";
 
 const UserRouter = express.Router();
 // user
@@ -59,6 +59,9 @@ UserRouter.get("/getPDF", verifyToken, ShowPDF);
 // User course & modules
 UserRouter.get("/course/checkout", verifyToken, getCourseUserCheckout);
 UserRouter.get("/course", verifyToken, getCourse);
+UserRouter.get("/course/recent", verifyToken, getRecentCourse);
+UserRouter.get("/course/recent/name", verifyToken, getRecentNameCourse);
+UserRouter.post("/course/recent", verifyToken, AddRecentCourse);
 UserRouter.get("/course/completed", verifyToken, getCompletionCourse);
 UserRouter.get("/course/detail", verifyToken, getCourseDetail);
 UserRouter.get("/search/course", verifyToken, searchCourse);
