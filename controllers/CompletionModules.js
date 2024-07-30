@@ -30,7 +30,9 @@ export const getModuleUserCheckout = async (req, res) => {
     }
 
     // Retrieve course IDs from checkouts
-    const checkoutCourseIds = findCheckouts.map(checkout => checkout.course_id);
+    const checkoutCourseIds = findCheckouts.map(
+      (checkout) => checkout.course_id
+    );
 
     // Retrieve all completion modules for the user related to the checked-out courses
     const getModules = await CompletionModule.findAll({
@@ -52,13 +54,16 @@ export const getModuleUserCheckout = async (req, res) => {
     });
 
     // Group totalModulesByCourse by course_id
-    const totalModulesCountByCourse = totalModulesByCourse.reduce((acc, module) => {
-      if (!acc[module.course_id]) {
-        acc[module.course_id] = 0;
-      }
-      acc[module.course_id]++;
-      return acc;
-    }, {});
+    const totalModulesCountByCourse = totalModulesByCourse.reduce(
+      (acc, module) => {
+        if (!acc[module.course_id]) {
+          acc[module.course_id] = 0;
+        }
+        acc[module.course_id]++;
+        return acc;
+      },
+      {}
+    );
 
     // Group completed modules by course_id
     const completedModulesCountByCourse = getModules.reduce((acc, module) => {
@@ -72,7 +77,7 @@ export const getModuleUserCheckout = async (req, res) => {
     }, {});
 
     // Combine course details, totalComplete, and totalModules for each course
-    const courseCompletionData = findCheckouts.map(checkout => ({
+    const courseCompletionData = findCheckouts.map((checkout) => ({
       course: checkout.course,
       totalComplete: completedModulesCountByCourse[checkout.course_id] || 0,
       totalModules: totalModulesCountByCourse[checkout.course_id] || 0,
@@ -111,15 +116,18 @@ export const checkWhoEnrolled = async (req, res) => {
 
   try {
     const enrolledUsers = await Checkout.findAll({
+      where: {
+        verify: true,
+      },
       include: [
         {
           model: Users,
           attributes: ["user_id", "name", "email", "nim"],
         },
         {
-          model: Course,  // Assuming you have a Courses model defined
+          model: Course, // Assuming you have a Courses model defined
           attributes: ["course_id"],
-          where: { name:name },
+          where: { name: name },
         },
       ],
     });
@@ -155,11 +163,9 @@ export const checkMaterial = async (req, res) => {
       include: {
         model: Modules,
         attributes: ["module_id", "name", "createdAt"], // Ensure createdAt is included
-        order: [['createdAt', 'ASC']] // This should be in the correct place
+        order: [["createdAt", "ASC"]], // This should be in the correct place
       },
-      order: [
-        [Modules, 'createdAt', 'ASC']
-      ],
+      order: [[Modules, "createdAt", "ASC"]],
     });
 
     if (!findCourse) {
@@ -170,7 +176,7 @@ export const checkMaterial = async (req, res) => {
         success: false,
       });
     }
-console.log(req.userId);
+    console.log(req.userId);
     const completionModules = await CompletionModule.findAll({
       where: {
         user_id: req.userId,
@@ -189,11 +195,16 @@ console.log(req.userId);
       };
     });
 
-    const allCompleted = modulesWithCompletion.every(module => module.is_completed);
+    const allCompleted = modulesWithCompletion.every(
+      (module) => module.is_completed
+    );
     let averageScore = null;
 
     if (allCompleted) {
-      const totalScore = modulesWithCompletion.reduce((acc, module) => acc + (module.score || 0), 0);
+      const totalScore = modulesWithCompletion.reduce(
+        (acc, module) => acc + (module.score || 0),
+        0
+      );
       averageScore = totalScore / modulesWithCompletion.length;
 
       // Check if the course is already marked as completed
@@ -238,9 +249,6 @@ console.log(req.userId);
     });
   }
 };
-
-
-
 
 export const addCompletionModule = async (req, res) => {
   try {

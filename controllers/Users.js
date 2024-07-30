@@ -49,10 +49,7 @@ export const Register = async (req, res) => {
     // Check for existing user
     const existingUser = await Users.findOne({
       where: {
-        [Op.or]: [
-          { email: email },
-          ...(nim ? [{ nim: nim }] : []),
-        ],
+        [Op.or]: [{ email: email }, ...(nim ? [{ nim: nim }] : [])],
       },
     });
 
@@ -93,7 +90,6 @@ export const Register = async (req, res) => {
     });
   }
 };
-
 
 export const Login = async (req, res) => {
   try {
@@ -190,22 +186,22 @@ export const Logout = async (req, res) => {
 
 export const changeIdentity = async (req, res) => {
   try {
-    const { nim, name, phone,  } = req.body;
+    const { name, phone } = req.body;
     const findUser = await Users.findOne({
       where: {
         email: req.email,
       },
     });
+
     if (!findUser) {
       return res.status(404).json({
         code: 404,
-        status: "Not Found",
-        message: "User not Found",
+        status: "Bad Request",
+        message: "User already exist",
         success: false,
       });
     }
     await findUser.update({
-      email: email,
       name: name,
       phone: phone,
     });
