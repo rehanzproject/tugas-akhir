@@ -1,7 +1,7 @@
 import express from "express";
 import { Login, Logout } from "../controllers/Users.js";
 import { verifyToken } from "../middleware/VerifyToken.js";
-import { AddCourse, deleteCourse, getCourse, getCourseDetail, getSummaryUser, resumeCourse, updateCourse } from "../controllers/Course.js";
+import { AddCourse, deleteCourse, getCourse, getCourseAdmin, getCourseDetail, getCourseReminder, getSummaryUser, resumeCourse, updateCourse } from "../controllers/Course.js";
 import { addModule, deleteModule, updateModule } from "../controllers/Modules.js";
 import { getAllCheckout } from "../controllers/Checkout.js";
 import { addQuizzes, deleteQuizzes, getQuizzes, updateQuizzes } from "../controllers/Quizzes.js";
@@ -16,11 +16,12 @@ const AdminRouter = express.Router();
 AdminRouter.post("/login", Login);
 AdminRouter.delete("/logout", Logout);
 //course
-AdminRouter.get("/course", verifyTokenAdmin, getCourse);
+AdminRouter.get("/course", verifyTokenAdmin, getCourseAdmin);
 AdminRouter.post("/course", verifyTokenAdmin, AddCourse);
 AdminRouter.put("/course", verifyTokenAdmin, updateCourse);
 AdminRouter.delete("/course", verifyTokenAdmin, deleteCourse);
 AdminRouter.get("/course/detail", verifyTokenAdmin, getCourseDetail);
+AdminRouter.post("/course/reminder", verifyTokenAdmin, getCourseReminder);
 
 AdminRouter.post("/module", verifyTokenAdmin, addModule);
 AdminRouter.get("/course/resumes", verifyTokenAdmin, resumeCourse);

@@ -4,7 +4,7 @@ import Course from "../model/CourseModel.js";
 import Modules from "../model/ModulesModel.js";
 import CompletionModule from "../model/CompletionModuleModel.js";
 import Users from "../model/UserModel.js";
-
+import admin from "firebase-admin";
 export const AddCourse = async (req, res) => {
   try {
     const { name, description, price, coupon } = req.body;
@@ -118,6 +118,49 @@ export const deleteCourse = async (req, res) => {
   }
 };
 
+export const getCourseAdmin = async (req, res) => {
+  try {
+    const { size, page } = req.query;
+    const getCourses = await Course.findAndCountAll({
+      where: { user_id: req.userId },
+      limit: parseInt(size),
+      offset: (page - 1) * size,
+      include: {
+        model: Modules,
+        attributes: ["name"],
+      },
+    });
+
+    if (!getCourses.rows.length)
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Course Not Found",
+        success: false,
+      });
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Success Get Data",
+      success: true,
+      data: getCourses.rows, // Return the actual data
+      page: {
+        size: parseInt(size),
+        total: getCourse.count,
+        page: parseInt(page),
+        totalPages: Math.ceil(getCourses.count / parseInt(size)),
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
 export const getCourse = async (req, res) => {
   try {
     const { size, page } = req.query;
@@ -169,7 +212,7 @@ export const getCourseDetail = async (req, res) => {
       include: [
         {
           model: Modules,
-          order: [['createdAt', 'ASC']],
+          order: [["createdAt", "ASC"]],
         },
         {
           model: Users,
@@ -185,9 +228,11 @@ export const getCourseDetail = async (req, res) => {
         message: "Course Not Found",
         success: false,
       });
-      if (getCourses.modules) {
-        getCourses.modules.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-      }
+    if (getCourses.modules) {
+      getCourses.modules.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+    }
     res.json({
       code: 200,
       status: "OK",
@@ -213,7 +258,6 @@ export const resumeCourse = async (req, res) => {
       where: {
         course_id: id,
       },
-     
     });
 
     if (!getModules.length) {
@@ -238,7 +282,7 @@ export const resumeCourse = async (req, res) => {
       status: "OK",
       message: "Success Get Data",
       success: true,
-      data: {  getModules },
+      data: { getModules },
     });
   } catch (error) {
     console.log(error);
@@ -344,15 +388,17 @@ export const getSummaryUser = async (req, res) => {
       where: {
         course_id: id,
       },
-      include: [{
-        model: Users,
-        attributes: ['name', 'phone', 'image', 'nim'],
-        where: { name },
-      },{
-        model: Modules,
-        attributes: ['module_id', 'name']
-      }]
-     
+      include: [
+        {
+          model: Users,
+          attributes: ["name", "phone", "image", "nim"],
+          where: { name },
+        },
+        {
+          model: Modules,
+          attributes: ["module_id", "name"],
+        },
+      ],
     });
 
     res.json({
@@ -364,6 +410,75 @@ export const getSummaryUser = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    res.status(500).json({
+      code: 500,
+      status: "Internal Server Error",
+      message: "Internal Server Error",
+      errors: { error },
+    });
+  }
+};
+
+export const getCourseReminder = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const { title, messages } = req.body;
+    const getCourses = await Course.findOne({
+      where: {
+        course_id: id,
+      },
+      include: [
+        {
+          model: Users,
+          attributes: ["name"],
+        },
+      ],
+    });
+
+    if (!getCourses) {
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "Course Not Found",
+        success: false,
+      });
+    }
+
+    if (getCourses.modules) {
+      getCourses.modules.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+    }
+
+    // Example: Send a push notification
+    const message = {
+      notification: {
+        title: title,
+        body: messages,
+      },
+      token:
+        "eVl7rY0BR6KIE8-LUii1br:APA91bEjfMZrokAHNr4PXWQ93duM9ElhhEfwgyGVlNV2Pj68m9-baIrFguBhQcqM5yOQNF6u59fd-hCvXgZczuCBCEicQXCjAbNQUrKvrogQLiD-NUlgIbE-8dkh9Y2vHq99hAO5UA2j", // You need to get the user's device token
+    };
+
+    admin
+      .messaging()
+      .send(message)
+      .then((response) => {
+        console.log("Successfully sent message:", response);
+      })
+      .catch((error) => {
+        console.log("Error sending message:", error);
+      });
+
+    res.json({
+      code: 200,
+      status: "OK",
+      message: "Success Send Notification",
+      success: true,
+      data: getCourses,
+    });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       code: 500,
       status: "Internal Server Error",

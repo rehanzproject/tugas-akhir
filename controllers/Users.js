@@ -35,7 +35,7 @@ export const getUserByEmail = async (req, res) => {
 };
 
 export const Register = async (req, res) => {
-  const { name, email, nim, nip, password, confPassword, admin } = req.body;
+  const { name, email, nim, nip, password, confPassword, admin, prodi } = req.body;
 
   try {
     // Build the where clause dynamically
@@ -70,6 +70,7 @@ export const Register = async (req, res) => {
         nim: nim,
         nip: nip,
         admin: admin,
+        prodi: prodi,
         password: hashPassword,
       });
 

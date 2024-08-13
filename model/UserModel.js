@@ -47,6 +47,9 @@ const Users = db.define(
     balance: {
       type: DataTypes.INTEGER,
     },
+    prodi: {
+      type: DataTypes.STRING,
+    },
     admin: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

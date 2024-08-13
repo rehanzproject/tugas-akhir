@@ -103,44 +103,63 @@ export const getModuleUserCheckout = async (req, res) => {
   }
 };
 export const checkWhoEnrolled = async (req, res) => {
-  const { name } = req.query;
+  const { course_id } = req.query;
 
-  if (!name) {
+  if (!course_id) {
     return res.status(400).json({
       code: 400,
       status: "Bad Request",
-      message: "Course name is required",
+      message: "Course ID is required",
       success: false,
     });
   }
 
   try {
-    const enrolledUsers = await Checkout.findAll({
+    const completionCourses = await CompletionCourse.findAll({
       where: {
-        verify: true,
+        course_id: course_id,
       },
       include: [
         {
           model: Users,
-          attributes: ["user_id", "name", "email", "nim"],
+          attributes: ["user_id", "name", "email", "nim", "prodi"],
         },
         {
-          model: Course, // Assuming you have a Courses model defined
-          attributes: ["course_id"],
-          where: { name: name },
+          model: Course,
+          attributes: ["course_id", "name"],
         },
       ],
     });
 
-    const filteredData = enrolledUsers.map((enrolled) => ({
-      course_id: enrolled.course.course_id,
-      user: enrolled.user,
+    if (completionCourses.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        status: "Not Found",
+        message: "No completion courses found for the provided course_id",
+        success: false,
+      });
+    }
+
+    const filteredData = completionCourses.map((completion) => ({
+      course_id: completion.course.course_id,
+      course_name: completion.course.name,
+      user: completion.user,
+      score: completion.score,
     }));
+
+    // Sort the data by prodi and name
+    filteredData.sort((a, b) => {
+      if (a.user.prodi < b.user.prodi) return -1;
+      if (a.user.prodi > b.user.prodi) return 1;
+      if (a.user.name < b.user.name) return -1;
+      if (a.user.name > b.user.name) return 1;
+      return 0;
+    });
 
     res.json({
       code: 200,
       status: "OK",
-      message: "Successfully retrieved enrolled users",
+      message: "Successfully retrieved completion courses",
       success: true,
       data: filteredData,
     });
