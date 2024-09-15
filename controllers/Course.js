@@ -456,8 +456,7 @@ export const getCourseReminder = async (req, res) => {
         title: title,
         body: messages,
       },
-      token:
-        "eVl7rY0BR6KIE8-LUii1br:APA91bEjfMZrokAHNr4PXWQ93duM9ElhhEfwgyGVlNV2Pj68m9-baIrFguBhQcqM5yOQNF6u59fd-hCvXgZczuCBCEicQXCjAbNQUrKvrogQLiD-NUlgIbE-8dkh9Y2vHq99hAO5UA2j", // You need to get the user's device token
+      token: user.token
     };
 
     admin
