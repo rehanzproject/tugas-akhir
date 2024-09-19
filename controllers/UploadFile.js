@@ -3,7 +3,7 @@ import path from "path";
 import Users from "../model/UserModel.js";
 import fs from "fs";
 import Course from "../model/CourseModel.js";
-import cloudinary from "../utils/cloudinary.js";
+import cloudinary from "../config/cloudinary/cloudinary.js";
 
 const storagePicture = multer.diskStorage({
   filename: function (req, file, cb) {

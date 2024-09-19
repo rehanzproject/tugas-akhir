@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import db from "../config/database.js";
+import db from "../config/database/database.js";
 import ReplyComment from "./ReplyCommentModel.js";
 
 const Comment = db.define(
