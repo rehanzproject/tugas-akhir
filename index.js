@@ -21,7 +21,7 @@ import Users from "./model/UserModel.js";
 import RecentCourse from "./model/RecentCourseModel.js";
 import { options } from "./option.js";
 import admin from "firebase-admin";
-import serviceAccount from './tugas-akhir-717e9-firebase-adminsdk-cwemt-1b81367285.json' assert { type: 'json' };
+import serviceAccount from './tugas-akhir-8f7e3-22b756a1c1be.json' assert { type: 'json' };
 import { initializeApp } from "firebase-admin/app";
 const CSS_URL =
   "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css";
@@ -31,17 +31,17 @@ const app = express();
 try {
   await db.authenticate();
   console.log("Database Connected...");
-  // await Users.sync()
-  // await Course.sync()
-  // await Modules.sync()
-  // await Checkout.sync()
-  // await CompletionCourse.sync()
-  // await CompletionModule.sync()
-  // await Comment.sync()
-  // await ReplyComment.sync()
-  // await ReviewCourse.sync()
-  // await Quizzes.sync()
-  // await RecentCourse.sync()
+  await Users.sync()
+  await Course.sync()
+  await Modules.sync()
+  await Checkout.sync()
+  await CompletionCourse.sync()
+  await CompletionModule.sync()
+  await Comment.sync()
+  await ReplyComment.sync()
+  await ReviewCourse.sync()
+  await Quizzes.sync()
+  await RecentCourse.sync()
   // drop
   // await RecentCourse.drop()
   // await Quizzes.drop()
@@ -69,8 +69,8 @@ app.use(bodyParser.json());
 app.use(express.json());
 var allowlist = [
   "http://localhost:5173",
-  "https://rahmamaulina211210005.my.id/",
   "https://tugas-akhir-admin.vercel.app/",
+  "https://hanzstore.my.id/"
 ];
 var corsOptionsDelegate = function (req, callback) {
   var corsOptions;
